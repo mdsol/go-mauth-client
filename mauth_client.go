@@ -13,13 +13,29 @@ type MAuthApp struct {
 }
 
 func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
-
+	// Create the MAuthApp struct
 	private_key, err := ioutil.ReadFile(key_file_name)
 	if err != nil {
 		return nil, err
 	}
 
 	block, _ := pem.Decode(private_key)
+
+	privatekey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	app := MAuthApp{app_id: app_id,
+		rsa_private_key: privatekey}
+	// TODO: return error?
+	return &app, nil
+}
+
+func LoadMauthFromString(app_id string, key_file_content []byte) (*MAuthApp, error) {
+	// Create the MAuthApp struct, when passed a byte array
+
+	block, _ := pem.Decode(key_file_content)
 
 	privatekey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
