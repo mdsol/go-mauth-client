@@ -1,12 +1,10 @@
 package go_mauth_client
 
 import (
-	"bufio"
 	"crypto/rsa"
-	"crypto/x509"
 	"encoding/pem"
-	"fmt"
-	"os"
+	"io/ioutil"
+	"crypto/x509"
 )
 
 type MAuthApp struct {
@@ -15,33 +13,21 @@ type MAuthApp struct {
 }
 
 func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
-	private_key_file, err := os.Open(key_file_name)
+
+	private_key, err := ioutil.ReadFile(key_file_name)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, err
 	}
 
-	// need to convert pemfile to []byte for decoding
+	block, _ := pem.Decode(private_key)
 
-	pemfileinfo, _ := private_key_file.Stat()
-	var size int64 = pemfileinfo.Size()
-	pembytes := make([]byte, size)
-
-	// read pemfile content into pembytes
-	buffer := bufio.NewReader(private_key_file)
-	_, err = buffer.Read(pembytes)
-
-	// proper decoding now
-	data, _ := pem.Decode([]byte(pembytes))
-	privatekey, err := x509.ParsePKCS1PrivateKey(data.Bytes)
+	privatekey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, err
 	}
 
-	private_key_file.Close()
-
-	app := MAuthApp{app_id: app_id, rsa_private_key: privatekey}
+	app := MAuthApp{app_id: app_id,
+		rsa_private_key: privatekey}
 	// TODO: return error?
 	return &app, nil
 }
