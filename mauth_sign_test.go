@@ -1,6 +1,9 @@
 package go_mauth_client
 
 import (
+	"crypto"
+	"crypto/rsa"
+	"crypto/sha512"
 	"fmt"
 	"path/filepath"
 	"reflect"
@@ -12,7 +15,7 @@ import (
 
 func TestMakeAuthenticationHeaders(t *testing.T) {
 	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
-	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "test_mauth.priv.key"))
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	now := time.Now()
 	secs := now.Unix()
 
@@ -30,7 +33,7 @@ func TestMakeAuthenticationHeaders(t *testing.T) {
 func TestStringToSign(t *testing.T) {
 	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	epoch := time.Now().Unix()
-	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "test_mauth.priv.key"))
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	expected := "GET" + "\n" + "/studies/123/users" + "\n" + "\n" + app_id + "\n" + strconv.FormatInt(epoch, 10)
 	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users", "")
 	if actual != expected {
@@ -41,7 +44,7 @@ func TestStringToSign(t *testing.T) {
 func TestStringToSignNoQueryParams(t *testing.T) {
 	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	epoch := time.Now().Unix()
-	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "test_mauth.priv.key"))
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	expected := "GET" + "\n" + "/studies/123/users" + "\n" + "\n" + app_id + "\n" + strconv.FormatInt(epoch, 10)
 	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users?until=2100", "", epoch)
 	if actual != expected {
@@ -51,7 +54,7 @@ func TestStringToSignNoQueryParams(t *testing.T) {
 
 func TestEpochDefinedIfMissing(t *testing.T) {
 	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
-	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "test_mauth.priv.key"))
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users", "")
 	epoch_str := strings.Split(actual, "\n")
 	epoch, _ := strconv.ParseInt(epoch_str[4], 10, 64)
@@ -59,5 +62,17 @@ func TestEpochDefinedIfMissing(t *testing.T) {
 	now := time.Now()
 	if !(now.Day() == nowish.Day() && now.Month() == nowish.Month() && now.Hour() == nowish.Hour()) {
 		t.Error("Epoch not set correctly")
+	}
+}
+
+func TestSignString(t *testing.T) {
+	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
+	const message = "string to sign"
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	signature, _ := SignString(mauth_app, message)
+	hashed := sha512.Sum512([]byte(message))
+	err := rsa.VerifyPKCS1v15(&mauth_app.rsa_private_key.PublicKey, crypto.SHA512, hashed[:], signature)
+	if err != nil {
+		t.Error("Error verifying signature")
 	}
 }

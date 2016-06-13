@@ -1,6 +1,10 @@
 package go_mauth_client
 
 import (
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha512"
 	"fmt"
 	"strconv"
 	"strings"
@@ -31,4 +35,17 @@ func MakeSignatureString(params ...interface{}) string {
 	// remove the query strings
 	urlpath := strings.Split(rawurlstring, "?")[0]
 	return strings.Join([]string{verb, urlpath, body, mauth_app.app_id, strconv.FormatInt(epoch, 10)}, "\n")
+}
+
+func SignString(mauth_app *MAuthApp, string_to_sign string) (s []byte, err error) {
+	rng := rand.Reader
+	message := []byte(string_to_sign)
+
+	hashed := sha512.Sum512(message)
+
+	signature, err := rsa.SignPKCS1v15(rng, mauth_app.rsa_private_key, crypto.SHA512, hashed[:])
+	if err != nil {
+		return nil, err
+	}
+	return signature, err
 }
