@@ -2,9 +2,9 @@ package go_mauth_client
 
 import (
 	"crypto/rsa"
+	"crypto/x509"
 	"encoding/pem"
 	"io/ioutil"
-	"crypto/x509"
 )
 
 type MAuthApp struct {
@@ -28,7 +28,6 @@ func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
 
 	app := MAuthApp{app_id: app_id,
 		rsa_private_key: privatekey}
-	// TODO: return error?
 	return &app, nil
 }
 
@@ -44,6 +43,5 @@ func LoadMauthFromString(app_id string, key_file_content []byte) (*MAuthApp, err
 
 	app := MAuthApp{app_id: app_id,
 		rsa_private_key: privatekey}
-	// TODO: return error?
 	return &app, nil
 }
