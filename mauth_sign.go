@@ -1,13 +1,13 @@
 package go_mauth_client
 
 import (
+	"encoding/base64"
+	"errors"
 	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 	"time"
-	"math/big"
-	"errors"
-	"encoding/base64"
 )
 
 func MakeAuthenticationHeaders(mauth_app *MAuthApp, signed_string string, seconds_since_epoch int64) map[string]string {
