@@ -1,9 +1,6 @@
 package go_mauth_client
 
 import (
-	"crypto"
-	"crypto/rsa"
-	"crypto/sha512"
 	"fmt"
 	"path/filepath"
 	"reflect"
@@ -67,12 +64,11 @@ func TestEpochDefinedIfMissing(t *testing.T) {
 
 func TestSignString(t *testing.T) {
 	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
-	const message = "string to sign"
+	const message = "Hello world"
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
-	signature, _ := SignString(mauth_app, message)
-	hashed := sha512.Sum512([]byte(message))
-	err := rsa.VerifyPKCS1v15(&mauth_app.rsa_private_key.PublicKey, crypto.SHA512, hashed[:], signature)
-	if err != nil {
-		t.Error("Error verifying signature")
+	actual, _ := SignString(mauth_app, message)
+	expected := "IUjQhtH4C9lbCRTyca+/i4raw7ZCcyYqy5/8c79LmJcsKxkxcRuUuIdBmeUXqCDJJ25ncAs3PmRg0UzwqnQeTh5GvIqVCeRlgqZttccVhO1knbgR+sZvq2zAi5HAWycwNXNVy/r2R4/SqjTfZq4Fd/rlytBVCFLu5cigxO5yl+Gv69dgck2vNAF45jJOyS1mCbk5Zti4scy4Vca31opl9QiGiN10Z6UHXkma1fut2sGGY03Q8UDHEqNnfds1vo7NMqbeSawIVjldWhNWzbxTYM8iOocOxK5vkmj3g6Lej59pEHlnGlK/AAPUgr/soCcZoE7mYSDcDucrMj9qi4Tvlg=="
+	if expected != actual {
+		t.Error("Encryption does not match: ", actual)
 	}
 }
