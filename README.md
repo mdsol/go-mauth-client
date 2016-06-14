@@ -22,8 +22,8 @@ Keep the Private key to yourself, don't check into GitHub, don't tell your mothe
 Generating a Test String
 ========================
 
-1. Install ruby
-2. Use `irb` to do the following:
+* Install ruby
+* Use `irb` to do the following:
 ```ruby
 
 irb(main):001:0> require 'openssl'
@@ -34,4 +34,4 @@ irb(main):004:0> Base64.encode64(key.private_encrypt("Hello world")).delete('\n'
 => "IUjQhtH4C9lbCRTyca+...Tvlg=="
 
 ```
-3. Copy the string to your test case
+* Copy the string to your test case
