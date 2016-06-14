@@ -17,9 +17,8 @@ https://medium.com/@matryer/writing-middleware-in-golang-and-how-go-makes-it-so-
 
 // taken from http://stackoverflow.com/a/22129435/1638744
 func isJSON(s string) bool {
-	var js map[string]interface{}
+	var js json.RawMessage
 	return json.Unmarshal([]byte(s), &js) == nil
-
 }
 
 func (mauth_app *MAuthApp) makeRequest(method string, rawurl string, body string) (req *http.Request, err error) {
