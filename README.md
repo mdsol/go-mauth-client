@@ -24,12 +24,14 @@ Generating a Test String
 
 1. Install ruby
 2. Use `irb` to do the following:
-   ```ruby
-   irb(main):001:0> require 'openssl'
-   irb(main):002:0> key_file = File.read('private_key.pem')
-   irb(main):003:0> key = OpenSSL::PKey::RSA.new(key_file)
-   irb(main):004:0> require 'base64'
-   irb(main):004:0> Base64.encode64(key.private_encrypt("Hello world")).delete('\n')
-   => "IUjQhtH4C9lbCRTyca+...Tvlg=="
-   ```
+
+        ```ruby
+        irb(main):001:0> require 'openssl'
+        irb(main):002:0> key_file = File.read('private_key.pem')
+        irb(main):003:0> key = OpenSSL::PKey::RSA.new(key_file)
+        irb(main):004:0> require 'base64'
+        irb(main):004:0> Base64.encode64(key.private_encrypt("Hello world")).delete('\n')
+        => "IUjQhtH4C9lbCRTyca+...Tvlg=="
+        ```
+
 3. Copy the string to your test case
