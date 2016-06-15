@@ -10,8 +10,9 @@ import (
 	"time"
 )
 
+const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
+
 func TestMakeAuthenticationHeaders(t *testing.T) {
-	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	now := time.Now()
 	secs := now.Unix()
@@ -29,7 +30,6 @@ func TestMakeAuthenticationHeaders(t *testing.T) {
 }
 
 func TestStringToSign(t *testing.T) {
-	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	epoch := time.Now().Unix()
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	expected := "GET" + "\n" + "/studies/123/users" + "\n" + "\n" + app_id + "\n" + strconv.FormatInt(epoch, 10)
@@ -40,7 +40,6 @@ func TestStringToSign(t *testing.T) {
 }
 
 func TestStringToSignNoQueryParams(t *testing.T) {
-	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	epoch := time.Now().Unix()
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	expected := "GET" + "\n" + "/studies/123/users" + "\n" + "\n" + app_id + "\n" + strconv.FormatInt(epoch, 10)
@@ -52,7 +51,6 @@ func TestStringToSignNoQueryParams(t *testing.T) {
 }
 
 func TestEpochDefinedIfMissing(t *testing.T) {
-	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users", "", -1)
 	epoch_str := strings.Split(actual, "\n")
@@ -65,7 +63,6 @@ func TestEpochDefinedIfMissing(t *testing.T) {
 }
 
 func TestSignString(t *testing.T) {
-	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	const message = "Hello world"
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	actual, _ := SignString(mauth_app, message)

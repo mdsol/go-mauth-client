@@ -7,7 +7,6 @@ import (
 )
 
 func TestLoadMauth(t *testing.T) {
-	app_id := "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	mauth, err := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
@@ -21,7 +20,6 @@ func TestLoadMauth(t *testing.T) {
 }
 
 func TestLoadMauthFromString(t *testing.T) {
-	app_id := "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	key_content, _ := ioutil.ReadFile(filepath.Join("test", "private_key.pem"))
 	mauth, err := LoadMauthFromString(app_id, key_content)
 	if err != nil {
