@@ -49,7 +49,7 @@ func SignString(mauth_app *MAuthApp, string_to_sign string) (s string, err error
 }
 
 // privateEncrypt implements OpenSSL's RSA_private_encrypt function
-// taken from: https://github.com/marpaia/chef-golang/api.go
+// taken from: https://github.com/marpaia/chef-golang/api.go (MIT License)
 func privateEncrypt(mauth_app *MAuthApp, data []byte) (enc []byte, err error) {
 	k := (mauth_app.rsa_private_key.N.BitLen() + 7) / 8
 	tLen := len(data)
