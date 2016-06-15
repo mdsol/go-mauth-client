@@ -13,7 +13,7 @@ import (
 func MakeAuthenticationHeaders(mauth_app *MAuthApp, signed_string string, seconds_since_epoch int64) map[string]string {
 	headers := map[string]string{
 		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauth_app.app_id, signed_string),
-		"X-MWS-Time":           string(seconds_since_epoch),
+		"X-MWS-Time":           strconv.FormatInt(seconds_since_epoch, 10),
 	}
 	return headers
 }

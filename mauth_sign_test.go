@@ -18,12 +18,13 @@ func TestMakeAuthenticationHeaders(t *testing.T) {
 
 	expected := map[string]string{
 		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauth_app.app_id, "some string"),
-		"X-MWS-Time":           string(secs),
+		"X-MWS-Time":           strconv.FormatInt(secs, 10),
 	}
 	actual := MakeAuthenticationHeaders(mauth_app, "some string", secs)
 	eq := reflect.DeepEqual(expected, actual)
 	if !eq {
 		t.Error("Authentication headers don't match")
+
 	}
 }
 
