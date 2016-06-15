@@ -33,7 +33,7 @@ func TestStringToSign(t *testing.T) {
 	epoch := time.Now().Unix()
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	expected := "GET" + "\n" + "/studies/123/users" + "\n" + "\n" + app_id + "\n" + strconv.FormatInt(epoch, 10)
-	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users", "")
+	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users", "", -1)
 	if actual != expected {
 		t.Error("Signature String doesn't match")
 	}
@@ -46,14 +46,15 @@ func TestStringToSignNoQueryParams(t *testing.T) {
 	expected := "GET" + "\n" + "/studies/123/users" + "\n" + "\n" + app_id + "\n" + strconv.FormatInt(epoch, 10)
 	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users?until=2100", "", epoch)
 	if actual != expected {
-		t.Error("Signature String doesn't match")
+		t.Error("Signature String doesn't match: Expected ", strings.Replace(expected, "\n", " ", -1),
+			"Actual ", strings.Replace(actual, "\n", " ", -1))
 	}
 }
 
 func TestEpochDefinedIfMissing(t *testing.T) {
 	const app_id = "5ff4257e-9c16-11e0-b048-0026bbfffe5e"
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
-	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users", "")
+	actual := MakeSignatureString(mauth_app, "GET", "/studies/123/users", "", -1)
 	epoch_str := strings.Split(actual, "\n")
 	epoch, _ := strconv.ParseInt(epoch_str[4], 10, 64)
 	nowish := time.Unix(epoch, 0)

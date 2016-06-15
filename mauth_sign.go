@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// MakeAuthenticationHeaders generates the formatted headers as a map for
+// insertion into the request headers.
 func MakeAuthenticationHeaders(mauth_app *MAuthApp, signed_string string, seconds_since_epoch int64) map[string]string {
 	headers := map[string]string{
 		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauth_app.app_id, signed_string),
@@ -18,24 +20,17 @@ func MakeAuthenticationHeaders(mauth_app *MAuthApp, signed_string string, second
 	return headers
 }
 
-func MakeSignatureString(params ...interface{}) string {
-	mauth_app := params[0].(*MAuthApp)
-	method := params[1].(string)
-	rawurlstring := params[2].(string)
-	body := params[3].(string)
-	var epoch int64
-	if len(params) == 5 {
-		// if supplied, use it
-		epoch = params[4].(int64)
-	} else {
-		// default if not supplied
+// MakeSignatureString generates the string to be signed as part of the MWS header
+func MakeSignatureString(mauth_app *MAuthApp, method string, url string, body string, epoch int64) string {
+	if epoch == -1 {
 		epoch = time.Now().Unix()
 	}
 	// remove the query strings
-	urlpath := strings.Split(rawurlstring, "?")[0]
-	return strings.Join([]string{method, urlpath, body, mauth_app.app_id, strconv.FormatInt(epoch, 10)}, "\n")
+	return strings.Join([]string{method, strings.Split(url, "?")[0],
+		body, mauth_app.app_id, strconv.FormatInt(epoch, 10)}, "\n")
 }
 
+// SignString encrypts and encodes the string to sign
 func SignString(mauth_app *MAuthApp, string_to_sign string) (s string, err error) {
 	message := []byte(string_to_sign)
 
