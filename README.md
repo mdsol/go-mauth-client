@@ -29,8 +29,10 @@ Generating a Test String
 irb(main):001:0> require 'openssl'
 irb(main):002:0> key_file = File.read('private_key.pem')
 irb(main):003:0> key = OpenSSL::PKey::RSA.new(key_file)
+irb(main):004:0> require 'digest'
+irb(main):005:0> hashed = Digest::SHA512.hexdigest("Hello world")
 irb(main):004:0> require 'base64'
-irb(main):004:0> Base64.encode64(key.private_encrypt("Hello world")).delete('\n')
+irb(main):005:0> Base64.encode64(key.private_encrypt(hashed)).delete("\n")
 => "IUjQhtH4C9lbCRTyca+...Tvlg=="
 
 ```
