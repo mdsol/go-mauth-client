@@ -127,11 +127,21 @@ func main() {
 	case "GET":
 		response, err = client.get(target_url.String())
 
+	case "DELETE":
+		response, err = client.get(target_url.String())
+
 	case "POST":
 		response, err = client.post(target_url.String(), *data)
+
+	case "PUT":
+		response, err = client.post(target_url.String(), *data)
 	}
-	fmt.Printf("Status Code: %d\n", response.StatusCode)
 	defer response.Body.Close()
+	fmt.Printf("Status Code: %d\n", response.StatusCode)
+	fmt.Println("Headers:")
+	for key, value := range response.Header{
+		fmt.Printf(" %s: %s\n", key, value)
+	}
 	body, err := ioutil.ReadAll(response.Body)
 	fmt.Printf("Response Body:\n%s\n", body)
 }
