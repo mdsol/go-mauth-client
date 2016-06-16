@@ -3,12 +3,12 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"github.com/syndtr/goleveldb/leveldb/errors"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 	"os"
-	"net/http"
-	"fmt"
 )
 
 type ApplicationContext struct {

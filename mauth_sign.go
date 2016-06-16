@@ -1,15 +1,15 @@
 package main
 
 import (
+	"crypto/sha512"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"math/big"
 	"strconv"
 	"strings"
 	"time"
-	"crypto/sha512"
-	"encoding/hex"
 )
 
 // MakeAuthenticationHeaders generates the formatted headers as a map for

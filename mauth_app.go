@@ -1,10 +1,10 @@
 package main
 
 import (
-	"io/ioutil"
-	"encoding/pem"
-	"crypto/x509"
 	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"io/ioutil"
 )
 
 type MAuthApp struct {

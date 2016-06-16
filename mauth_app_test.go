@@ -1,8 +1,8 @@
 package main
 
 import (
-	"path/filepath"
 	"io/ioutil"
+	"path/filepath"
 	"testing"
 )
 

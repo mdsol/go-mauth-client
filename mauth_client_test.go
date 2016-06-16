@@ -54,7 +54,7 @@ func TestFullURLWithActualURL(t *testing.T) {
 	}
 }
 
-func TestCreateClient(t *testing.T){
+func TestCreateClient(t *testing.T) {
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	client, _ := mauth_app.createClient("https://innovate.mdsol.com")
 	if client.base_url != "https://innovate.mdsol.com" {
@@ -64,4 +64,3 @@ func TestCreateClient(t *testing.T){
 		t.Error("App ID has changed")
 	}
 }
-
