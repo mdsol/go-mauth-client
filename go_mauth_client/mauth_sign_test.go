@@ -18,7 +18,7 @@ func TestMakeAuthenticationHeaders(t *testing.T) {
 	secs := now.Unix()
 
 	expected := map[string]string{
-		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauth_app.app_id, "some string"),
+		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauth_app.App_ID, "some string"),
 		"X-MWS-Time":           strconv.FormatInt(secs, 10),
 	}
 	actual := MakeAuthenticationHeaders(mauth_app, "some string", secs)
@@ -66,7 +66,7 @@ func TestSignString(t *testing.T) {
 	const message = "Hello world"
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	actual, _ := SignString(mauth_app, message)
-	expected := "IUjQhtH4C9lbCRTyca+/i4raw7ZCcyYqy5/8c79LmJcsKxkxcRuUuIdBmeUXqCDJJ25ncAs3PmRg0UzwqnQeTh5GvIqVCeRlgqZttccVhO1knbgR+sZvq2zAi5HAWycwNXNVy/r2R4/SqjTfZq4Fd/rlytBVCFLu5cigxO5yl+Gv69dgck2vNAF45jJOyS1mCbk5Zti4scy4Vca31opl9QiGiN10Z6UHXkma1fut2sGGY03Q8UDHEqNnfds1vo7NMqbeSawIVjldWhNWzbxTYM8iOocOxK5vkmj3g6Lej59pEHlnGlK/AAPUgr/soCcZoE7mYSDcDucrMj9qi4Tvlg=="
+	expected := "ktlytWxKb6DnEaLlNRuDapLVf1DlkFCIY+/f+/VDZbH6tD6QFZ/8M3XklBEvaBqlYeACBptHZK52Yv9jbNO2gVdkQsb6Qo4467dDuHTpLmaeGTZetxZ8yuWwzHQGfqawgH9V6omnPrYbKJWaAzEdrlIxQqCWktibE6l1uW7pikZr+Y4NoDkIMavOgTdRJyOe1TDL+3GIIvIDTc5G+Mu7hNqxWRvnJTocAWFj/7ZA3GaBsHbZy9wwIzVmcloE5ahMFOlFIPI4e8DEa5sBsE7vklG25jRm8+E3GX7osslVY51RFh14KrJVIAu8gR9KzTlxRWRe8avoVf/q7CuiUyBOHA=="
 	if expected != actual {
 		t.Error("Encryption does not match: ", actual)
 	}
