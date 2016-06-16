@@ -1,4 +1,4 @@
-package go_mauth_client
+package main
 
 import (
 	"encoding/base64"
@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"crypto/sha512"
+	"encoding/hex"
 )
 
 // MakeAuthenticationHeaders generates the formatted headers as a map for
@@ -32,9 +34,11 @@ func MakeSignatureString(mauth_app *MAuthApp, method string, url string, body st
 
 // SignString encrypts and encodes the string to sign
 func SignString(mauth_app *MAuthApp, string_to_sign string) (s string, err error) {
-	message := []byte(string_to_sign)
-
-	encrypted, err := privateEncrypt(mauth_app, message)
+	// create a hasher
+	h := sha512.New()
+	h.Write([]byte(string_to_sign))
+	hashed := hex.EncodeToString(h.Sum(nil))
+	encrypted, err := privateEncrypt(mauth_app, []byte(hashed))
 	if err != nil {
 		return "", err
 	}
