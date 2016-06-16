@@ -1,47 +1,59 @@
-package go_mauth_client
+package main
 
 import (
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-	"io/ioutil"
+	"net/http"
+	"strings"
+	"net/url"
 )
 
-type MAuthApp struct {
-	app_id          string
-	rsa_private_key *rsa.PrivateKey
+
+type MAuthClient struct {
+	mauth_app *MAuthApp
+	base_url string
 }
 
-func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
-	// Create the MAuthApp struct
-	private_key, err := ioutil.ReadFile(key_file_name)
+// create a client
+func (mauth_app *MAuthApp) createClient(base_url string)(client MAuthClient, err error){
+	client = MAuthClient{mauth_app: mauth_app, base_url: base_url}
+	return
+}
+
+// fullURL returns the full URL, if we have a path it will prepend the base_url
+func (mauth_client *MAuthClient) fullURL(target_url string)(full_url string, err error){
+	if strings.HasPrefix(target_url, "http") {
+		full_url = target_url
+	} else {
+		parsed_url, err := url.Parse(mauth_client.base_url)
+		if err != nil {
+			return "", err
+		}
+		parsed_url.Path = target_url
+		full_url = parsed_url.String()
+	}
+	return
+}
+
+// MAuthClient.get executes a GET request against a URL
+func (mauth_client *MAuthClient) get(target_url string)(response *http.Response, err error){
+	req, err := mauth_client.mauth_app.makeRequest("GET", target_url, "")
 	if err != nil {
 		return nil, err
 	}
 
-	block, _ := pem.Decode(private_key)
+	client := http.Client{}
+	response, err = client.Do(req)
+	return
+}
 
-	privatekey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+// MAuthClient.post executes a POST request against a URL
+func (mauth_client *MAuthClient) post(target_url string, data string)(response *http.Response, err error){
+	req, err := mauth_client.mauth_app.makeRequest("POST", target_url, data)
 	if err != nil {
 		return nil, err
 	}
 
-	app := MAuthApp{app_id: app_id,
-		rsa_private_key: privatekey}
-	return &app, nil
+	client := http.Client{}
+	response, err = client.Do(req)
+	return
 }
 
-func LoadMauthFromString(app_id string, key_file_content []byte) (*MAuthApp, error) {
-	// Create the MAuthApp struct, when passed a byte array
-
-	block, _ := pem.Decode(key_file_content)
-
-	privatekey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	app := MAuthApp{app_id: app_id,
-		rsa_private_key: privatekey}
-	return &app, nil
-}

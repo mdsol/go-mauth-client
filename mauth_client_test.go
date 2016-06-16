@@ -1,34 +1,67 @@
-package go_mauth_client
+package main
 
 import (
-	"io/ioutil"
 	"path/filepath"
 	"testing"
 )
 
-func TestLoadMauth(t *testing.T) {
-	mauth, err := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
-	if err != nil {
-		t.Error("Error creating the MAuth Struct")
+func TestFullURLWithRelative(t *testing.T) {
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	client, _ := mauth_app.createClient("https://innovate.mdsol.com")
+	expected := "https://innovate.mdsol.com/api/v2/users.json"
+	actual, _ := client.fullURL("/api/v2/users.json")
+	if actual != expected {
+		t.Error("Expected URL not seen")
+
 	}
-	if mauth.app_id != app_id {
-		t.Error("App ID doesn't match")
-	}
-	if mauth.rsa_private_key.Validate() != nil {
-		t.Error("Error validating key")
+	// now, with a trailing slash
+	client, _ = mauth_app.createClient("https://innovate.mdsol.com/")
+	expected = "https://innovate.mdsol.com/api/v2/users.json"
+	actual, _ = client.fullURL("/api/v2/users.json")
+	if actual != expected {
+		t.Error("Expected URL not seen: ", actual)
+
 	}
 }
 
-func TestLoadMauthFromString(t *testing.T) {
-	key_content, _ := ioutil.ReadFile(filepath.Join("test", "private_key.pem"))
-	mauth, err := LoadMauthFromString(app_id, key_content)
-	if err != nil {
-		t.Error("Error creating the MAuth Struct")
+func TestFullURLWithRelativeAndParams(t *testing.T) {
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	client, _ := mauth_app.createClient("https://innovate.mdsol.com")
+	expected := "https://innovate.mdsol.com/api/v2/users.json"
+	actual, _ := client.fullURL("/api/v2/users.json")
+	if actual != expected {
+		t.Error("Expected URL not seen")
+
 	}
-	if mauth.app_id != app_id {
-		t.Error("App ID doesn't match")
-	}
-	if mauth.rsa_private_key.Validate() != nil {
-		t.Error("Error validating key")
+	// now, with a trailing slash
+	client, _ = mauth_app.createClient("https://innovate.mdsol.com/")
+	expected = "https://innovate.mdsol.com/api/v2/users.json"
+	actual, _ = client.fullURL("/api/v2/users.json")
+	if actual != expected {
+		t.Error("Expected URL not seen: ", actual)
+
 	}
 }
+
+func TestFullURLWithActualURL(t *testing.T) {
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	client, _ := mauth_app.createClient("https://innovate.mdsol.com")
+	expected := "https://balance-innovate.mdsol.com/api/v2/users.json"
+	actual, _ := client.fullURL("https://balance-innovate.mdsol.com/api/v2/users.json")
+	if actual != expected {
+		t.Error("Expected URL not seen")
+
+	}
+}
+
+func TestCreateClient(t *testing.T){
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	client, _ := mauth_app.createClient("https://innovate.mdsol.com")
+	if client.base_url != "https://innovate.mdsol.com" {
+		t.Error("Base URL has changed")
+	}
+	if client.mauth_app.app_id != app_id {
+		t.Error("App ID has changed")
+	}
+}
+
