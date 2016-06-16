@@ -34,6 +34,12 @@ As an alternative the content of the private key can be included using a `privat
 go-mauth-client git:(develop) $ ./go-mauth-client -config innovate.json https://innovate.imedidata.com/api/v2/studies/55555555-5508-45c6-3333-1234512345.json
 Created MAuth App with App UUID: 12345678-c109-11e1-84f6-5432112345
 Status Code: 200
+Headers:
+ Status: [200 OK]
+ Connection: [keep-alive]
+ X-Rack-Cache: [miss]
+ X-Powered-By: [Phusion Passenger 4.0.59]
+ ...
 Response Body:
 {"study":{"name":"Mediflex (DEV)","uuid":"55555555-5508-45c6-3333-1234512345","mcc_study_uuid":"","oid":"Mediflex (DEV)","live_date":"","title":"","summary":"","drug_device":"","compound_code":"","number":"","program":"","protocol":"Mediflex","indication":"","responsible_party":"","enrollment_target":"","investigator":"","full_description":"EHR Integration testing study. Ian Sparks, Geoff Low","therapeutic_area":"Unknown","phase":"III","close_date":"","is_production":"false","parent_uuid":"55555555-1111-2222-3333-4444444444","status":"active","client_division_uuid":"","study_environment_type":"Development"}}
 ```
