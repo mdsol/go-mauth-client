@@ -1,4 +1,4 @@
-package main
+package go_mauth_client
 
 import (
 	"net/http"
@@ -12,7 +12,7 @@ type MAuthClient struct {
 }
 
 // create a client
-func (mauth_app *MAuthApp) createClient(base_url string) (client MAuthClient, err error) {
+func (mauth_app *MAuthApp) CreateClient(base_url string) (client MAuthClient, err error) {
 	client = MAuthClient{mauth_app: mauth_app, base_url: base_url}
 	return
 }
@@ -32,8 +32,8 @@ func (mauth_client *MAuthClient) fullURL(target_url string) (full_url string, er
 	return
 }
 
-// MAuthClient.get executes a GET request against a URL
-func (mauth_client *MAuthClient) get(target_url string) (response *http.Response, err error) {
+// MAuthClient.Get executes a GET request against a URL
+func (mauth_client *MAuthClient) Get(target_url string) (response *http.Response, err error) {
 	req, err := mauth_client.mauth_app.makeRequest("GET", target_url, "")
 	if err != nil {
 		return nil, err
@@ -44,8 +44,8 @@ func (mauth_client *MAuthClient) get(target_url string) (response *http.Response
 	return
 }
 
-// MAuthClient.delete executes a DELETE request against a URL
-func (mauth_client *MAuthClient) delete(target_url string) (response *http.Response, err error) {
+// MAuthClient.Delete executes a DELETE request against a URL
+func (mauth_client *MAuthClient) Delete(target_url string) (response *http.Response, err error) {
 	req, err := mauth_client.mauth_app.makeRequest("DELETE", target_url, "")
 	if err != nil {
 		return nil, err
@@ -56,8 +56,8 @@ func (mauth_client *MAuthClient) delete(target_url string) (response *http.Respo
 	return
 }
 
-// MAuthClient.post executes a POST request against a URL
-func (mauth_client *MAuthClient) post(target_url string, data string) (response *http.Response, err error) {
+// MAuthClient.Post executes a POST request against a URL
+func (mauth_client *MAuthClient) Post(target_url string, data string) (response *http.Response, err error) {
 	req, err := mauth_client.mauth_app.makeRequest("POST", target_url, data)
 	if err != nil {
 		return nil, err
@@ -68,8 +68,8 @@ func (mauth_client *MAuthClient) post(target_url string, data string) (response 
 	return
 }
 
-// MAuthClient.put executes a PUT request against a URL
-func (mauth_client *MAuthClient) put(target_url string, data string) (response *http.Response, err error) {
+// MAuthClient.Put executes a PUT request against a URL
+func (mauth_client *MAuthClient) Put(target_url string, data string) (response *http.Response, err error) {
 	req, err := mauth_client.mauth_app.makeRequest("PUT", target_url, data)
 	if err != nil {
 		return nil, err

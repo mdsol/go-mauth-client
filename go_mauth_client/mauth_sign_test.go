@@ -1,4 +1,4 @@
-package main
+package go_mauth_client
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ func TestMakeAuthenticationHeaders(t *testing.T) {
 	secs := now.Unix()
 
 	expected := map[string]string{
-		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauth_app.app_id, "some string"),
+		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauth_app.App_ID, "some string"),
 		"X-MWS-Time":           strconv.FormatInt(secs, 10),
 	}
 	actual := MakeAuthenticationHeaders(mauth_app, "some string", secs)

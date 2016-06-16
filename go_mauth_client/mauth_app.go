@@ -1,4 +1,4 @@
-package main
+package go_mauth_client
 
 import (
 	"crypto/rsa"
@@ -8,8 +8,8 @@ import (
 )
 
 type MAuthApp struct {
-	app_id          string
-	rsa_private_key *rsa.PrivateKey
+	App_ID          string
+	RSA_Private_Key *rsa.PrivateKey
 }
 
 func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
@@ -26,8 +26,8 @@ func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
 		return nil, err
 	}
 
-	app := MAuthApp{app_id: app_id,
-		rsa_private_key: privatekey}
+	app := MAuthApp{App_ID: app_id,
+		RSA_Private_Key: privatekey}
 	return &app, nil
 }
 
@@ -41,7 +41,7 @@ func LoadMauthFromString(app_id string, key_file_content []byte) (*MAuthApp, err
 		return nil, err
 	}
 
-	app := MAuthApp{app_id: app_id,
-		rsa_private_key: privatekey}
+	app := MAuthApp{App_ID: app_id,
+		RSA_Private_Key: privatekey}
 	return &app, nil
 }
