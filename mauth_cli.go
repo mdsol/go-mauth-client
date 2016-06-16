@@ -19,7 +19,7 @@ type ApplicationContext struct {
 
 func CheckAction(action *string) bool {
 	switch *action {
-	case "GET", "POST":
+	case "GET", "POST", "PUT", "DELETE":
 		return true
 	default:
 		return false
@@ -74,7 +74,7 @@ func main() {
 	key_file := flag.String("private-key", "", "Specify the private key file")
 	app_uuid := flag.String("app-uuid", "", "Specify the App UUID")
 
-	action := flag.String("method", "GET", "Specify the method (GET, POST)")
+	action := flag.String("method", "GET", "Specify the method (GET, POST, PUT, DELETE)")
 	data := flag.String("data", "", "Specify the data")
 
 	flag.Parse()

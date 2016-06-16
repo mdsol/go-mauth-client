@@ -64,3 +64,5 @@ func TestCreateClient(t *testing.T) {
 		t.Error("App ID has changed")
 	}
 }
+
+// TODO: Add tests for get, put, post, delete
