@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/syndtr/goleveldb/leveldb/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
+	"errors"
+	"github.com/mdsol/go-mauth-client/go_mauth_client"
 )
 
 type ApplicationContext struct {
@@ -28,7 +29,7 @@ func CheckAction(action *string) bool {
 
 // Load the Configuration from a JSON file
 // why JSON, you may ask, using stdlib as much as possible
-func LoadMAuthConfig(file_name string) (mauth_app *MAuthApp, err error) {
+func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err error) {
 	content, err := ioutil.ReadFile(file_name)
 	if err != nil {
 		println("Error loading content")
@@ -54,11 +55,11 @@ func LoadMAuthConfig(file_name string) (mauth_app *MAuthApp, err error) {
 	}
 	if IsNull(&private_key_file) {
 		// read from the embedded value
-		mauth_app, err = LoadMauthFromString(app_uuid,
+		mauth_app, err = go_mauth_client.LoadMauthFromString(app_uuid,
 			[]byte(private_key_text))
 	} else {
 		// load the key from a file
-		mauth_app, err = LoadMauth(app_uuid,
+		mauth_app, err = go_mauth_client.LoadMauth(app_uuid,
 			private_key_file)
 	}
 	return
@@ -84,7 +85,7 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	var mauth_app *MAuthApp
+	var mauth_app *go_mauth_client.MAuthApp
 	// Load the MAuth Config
 	if !IsNull(config_file) {
 		// a config file has been passed
@@ -96,13 +97,13 @@ func main() {
 		}
 	} else {
 		var err error
-		mauth_app, err = LoadMauth(*app_uuid, *key_file)
+		mauth_app, err = go_mauth_client.LoadMauth(*app_uuid, *key_file)
 		if err != nil {
 			println("Error loading configuration: ", err)
 			os.Exit(1)
 		}
 	}
-	fmt.Printf("Created MAuth App with App UUID: %s\n", mauth_app.app_id)
+	fmt.Printf("Created MAuth App with App UUID: %s\n", mauth_app.App_ID)
 	action_matches := CheckAction(action)
 	if !action_matches {
 		println("Action ", action, "is not known")
@@ -121,20 +122,20 @@ func main() {
 		println("Unable to parse url: ", err)
 		os.Exit(1)
 	}
-	client, err := mauth_app.createClient(target_url.Scheme + "://" + target_url.Host)
+	client, err := mauth_app.CreateClient(target_url.Scheme + "://" + target_url.Host)
 	var response *http.Response
 	switch *action {
 	case "GET":
-		response, err = client.get(target_url.String())
+		response, err = client.Get(target_url.String())
 
 	case "DELETE":
-		response, err = client.get(target_url.String())
+		response, err = client.Delete(target_url.String())
 
 	case "POST":
-		response, err = client.post(target_url.String(), *data)
+		response, err = client.Post(target_url.String(), *data)
 
 	case "PUT":
-		response, err = client.post(target_url.String(), *data)
+		response, err = client.Put(target_url.String(), *data)
 	}
 	defer response.Body.Close()
 	fmt.Printf("Status Code: %d\n", response.StatusCode)
