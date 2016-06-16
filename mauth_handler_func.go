@@ -1,4 +1,4 @@
-package go_mauth_client
+package main
 
 import (
 	"bytes"
