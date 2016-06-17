@@ -27,14 +27,8 @@ func CheckAction(action *string) bool {
 	}
 }
 
-// Load the Configuration from a JSON file
-// why JSON, you may ask, using stdlib as much as possible
-func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err error) {
-	content, err := ioutil.ReadFile(file_name)
-	if err != nil {
-		println("Error loading content")
-		return nil, err
-	}
+// Process the Configuration Content (Easier to test)
+func ProcessConfiguration(content []byte)(mauth_app *go_mauth_client.MAuthApp, err error){
 	var context map[string]string
 	err = json.Unmarshal(content, &context)
 	if err != nil {
@@ -65,6 +59,17 @@ func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err
 	return
 }
 
+// Load the Configuration from a JSON file
+// why JSON, you may ask, using stdlib as much as possible
+func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err error) {
+	content, err := ioutil.ReadFile(file_name)
+	if err != nil {
+		return nil, err
+	}
+	mauth_app, err = ProcessConfiguration(content)
+	return
+}
+
 func IsNull(value *string) bool {
 	return *value == ""
 }
@@ -77,6 +82,7 @@ func main() {
 
 	action := flag.String("method", "GET", "Specify the method (GET, POST, PUT, DELETE)")
 	data := flag.String("data", "", "Specify the data")
+	headers := flag.Bool("headers", false, "Print the Response Headers")
 
 	flag.Parse()
 	// No information supplied
@@ -139,9 +145,11 @@ func main() {
 	}
 	defer response.Body.Close()
 	fmt.Printf("Status Code: %d\n", response.StatusCode)
-	fmt.Println("Headers:")
-	for key, value := range response.Header{
-		fmt.Printf(" %s: %s\n", key, value)
+	if *headers {
+		fmt.Println("Headers:")
+		for key, value := range response.Header {
+			fmt.Printf(" %s: %s\n", key, value)
+		}
 	}
 	body, err := ioutil.ReadAll(response.Body)
 	fmt.Printf("Response Body:\n%s\n", body)
