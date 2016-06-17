@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"github.com/mdsol/go-mauth-client/go_mauth_client"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-	"errors"
-	"github.com/mdsol/go-mauth-client/go_mauth_client"
 )
 
 type ApplicationContext struct {
@@ -28,18 +28,16 @@ func CheckAction(action *string) bool {
 }
 
 // Process the Configuration Content (Easier to test)
-func ProcessConfiguration(content []byte)(mauth_app *go_mauth_client.MAuthApp, err error){
+func ProcessConfiguration(content []byte) (mauth_app *go_mauth_client.MAuthApp, err error) {
 	var context map[string]string
 	err = json.Unmarshal(content, &context)
 	if err != nil {
-		println("Error loading JSON")
 		return nil, err
 	}
 	app_uuid := context["app_uuid"]
 	private_key_file := context["private_key_file"]
 	private_key_text := context["private_key_text"]
 	if IsNull(&app_uuid) {
-		println("No App UUID")
 		return nil, errors.New("Need an app_uuid specified")
 	}
 
@@ -62,6 +60,9 @@ func ProcessConfiguration(content []byte)(mauth_app *go_mauth_client.MAuthApp, e
 // Load the Configuration from a JSON file
 // why JSON, you may ask, using stdlib as much as possible
 func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err error) {
+	if _, err = os.Stat(file_name); os.IsNotExist(err) {
+		return nil, err
+	}
 	content, err := ioutil.ReadFile(file_name)
 	if err != nil {
 		return nil, err
