@@ -70,6 +70,15 @@ func TestCreateClient(t *testing.T) {
 	}
 }
 
+func hasMWSHeader(r *http.Request)bool{
+	for header, _ := range r.Header {
+		if header == "X-Mws-Authentication" {
+			return true
+		}
+	}
+	return false
+}
+
 // Test the Get call
 func TestMAuthClient_Get(t *testing.T) {
 	var verb string
@@ -78,12 +87,7 @@ func TestMAuthClient_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		req_url = r.URL.String()
 		verb = r.Method
-
-		for header, _ := range r.Header {
-			if header == "X-Mws-Authentication" {
-				has_mws_header = true
-			}
-		}
+		has_mws_header = hasMWSHeader(r)
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintln(w, `{"fake twitter json string"}`)
 	}))
@@ -112,11 +116,7 @@ func TestMAuthClient_Delete(t *testing.T) {
 		url = r.URL.String()
 		verb = r.Method
 
-		for header, _ := range r.Header {
-			if header == "X-Mws-Authentication" {
-				has_mws_header = true
-			}
-		}
+		has_mws_header = hasMWSHeader(r)
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintln(w, `{"fake twitter json string"}`)
 	}))
@@ -146,10 +146,8 @@ func TestMAuthClient_Post(t *testing.T) {
 		url = r.URL.String()
 		verb = r.Method
 
+		has_mws_header = hasMWSHeader(r)
 		for header, value := range r.Header {
-			if header == "X-Mws-Authentication" {
-				has_mws_header = true
-			}
 			if header == "Content-Type" {
 				content_type = strings.Join(value, "")
 			}
@@ -192,10 +190,8 @@ func TestMAuthClient_Put(t *testing.T) {
 		url = r.URL.String()
 		verb = r.Method
 
+		has_mws_header = hasMWSHeader(r)
 		for header, value := range r.Header {
-			if header == "X-Mws-Authentication" {
-				has_mws_header = true
-			}
 			if header == "Content-Type" {
 				content_type = strings.Join(value, "")
 			}
