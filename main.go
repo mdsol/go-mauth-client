@@ -98,6 +98,8 @@ func main() {
 	data := flag.String("data", "", "Specify the data")
 	// headers is a flag, which tells the app to print out the response headers
 	headers := flag.Bool("headers", false, "Print the Response Headers")
+	// verbose is a flag, which tells the app to print out more information
+	verbose := flag.Bool("verbose", false, "Print out more information")
 
 	flag.Parse()
 
@@ -125,7 +127,9 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	fmt.Printf("Created MAuth App with App UUID: %s\n", mauth_app.App_ID)
+	if *verbose {
+		fmt.Printf("Created MAuth App with App UUID: %s\n", mauth_app.App_ID)
+	}
 	action_matches := CheckAction(action)
 	if !action_matches {
 		println("Action ", action, "is not known")
@@ -160,7 +164,9 @@ func main() {
 		response, err = client.Put(target_url.String(), *data)
 	}
 	defer response.Body.Close()
-	fmt.Printf("Status Code: %d\n", response.StatusCode)
+	if *verbose {
+		fmt.Printf("Status Code: %d\n", response.StatusCode)
+	}
 	if *headers {
 		fmt.Println("Headers:")
 		for key, value := range response.Header {
@@ -168,5 +174,8 @@ func main() {
 		}
 	}
 	body, err := ioutil.ReadAll(response.Body)
-	fmt.Printf("Response Body:\n%s\n", body)
+	if *verbose {
+		fmt.Printf("Response Body:\n")
+	}
+	fmt.Println(string(body))
 }
