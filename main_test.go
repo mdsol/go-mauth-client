@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// Confirm the IsNull function identifies an empty string and vice versa
 func TestIsNull(t *testing.T) {
 	test := ""
 	expected := true
@@ -21,6 +22,7 @@ func TestIsNull(t *testing.T) {
 	}
 }
 
+// Confirm that the CheckAction function identifies supported Verbs
 func TestCheckAction(t *testing.T) {
 	tests := map[string]bool{
 		"GET":       true,
@@ -39,6 +41,7 @@ func TestCheckAction(t *testing.T) {
 
 }
 
+// Confirm that we can load a configuration file
 func TestLoadMAuthConfig(t *testing.T) {
 	client, _ := LoadMAuthConfig("/this/does/not/exist.txt")
 	if client != nil {
@@ -53,9 +56,10 @@ func TestLoadMAuthConfig(t *testing.T) {
 	}
 }
 
+// Confirm that once we get a file or string we process it appropriately
 func TestProcessConfiguration(t *testing.T) {
 	var test_json string
-	//var client *go_mauth_client.MAuthApp
+
 	test_json = "{"
 	_, err := ProcessConfiguration([]byte(test_json))
 	if err == nil {

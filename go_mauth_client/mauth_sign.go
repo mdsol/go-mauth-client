@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+/*
+Wraps the functions around signing a request and generating the headers
+ */
+
 // MakeAuthenticationHeaders generates the formatted headers as a map for
 // insertion into the request headers.
 func MakeAuthenticationHeaders(mauth_app *MAuthApp, signed_string string, seconds_since_epoch int64) map[string]string {

@@ -12,12 +12,20 @@ import (
 	"os"
 )
 
+/*
+This uses the underlying library to build a MAuth Client tool;
+To build and install:
+$ go install
+ */
+
+// Context for the MAuth Client
 type ApplicationContext struct {
 	app_uuid         string
 	private_key_text []byte
 	private_key_file string
 }
 
+// Check that the passed verb is one we prepared for
 func CheckAction(action *string) bool {
 	switch *action {
 	case "GET", "POST", "PUT", "DELETE":
@@ -27,7 +35,7 @@ func CheckAction(action *string) bool {
 	}
 }
 
-// Process the Configuration Content (Easier to test)
+// Process the Configuration Content
 func ProcessConfiguration(content []byte) (mauth_app *go_mauth_client.MAuthApp, err error) {
 	var context map[string]string
 	err = json.Unmarshal(content, &context)
@@ -41,10 +49,11 @@ func ProcessConfiguration(content []byte) (mauth_app *go_mauth_client.MAuthApp, 
 		return nil, errors.New("Need an app_uuid specified")
 	}
 
-	// TODO: check for private_key_text
+	// No key, textual or file-based, passed in
 	if IsNull(&private_key_file) && IsNull(&private_key_text) {
 		return nil, errors.New("Need a key specified")
 	}
+	// Load from text
 	if IsNull(&private_key_file) {
 		// read from the embedded value
 		mauth_app, err = go_mauth_client.LoadMauthFromString(app_uuid,
@@ -57,8 +66,7 @@ func ProcessConfiguration(content []byte) (mauth_app *go_mauth_client.MAuthApp, 
 	return
 }
 
-// Load the Configuration from a JSON file
-// why JSON, you may ask, using stdlib as much as possible
+// LoadMAuthConfig loads the Configuration from a JSON file (No YAML support in corelib)
 func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err error) {
 	if _, err = os.Stat(file_name); os.IsNotExist(err) {
 		return nil, err
@@ -71,21 +79,28 @@ func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err
 	return
 }
 
+// IsNull is a Convenience Function for identification of empty strings
 func IsNull(value *string) bool {
 	return *value == ""
 }
 
+// Main function, go!
 func main() {
+	// config_file is the path to the configuration file
 	config_file := flag.String("config", "", "Specify the configuration file")
-
+	// key_file is the path to the private key file
 	key_file := flag.String("private-key", "", "Specify the private key file")
+	// app_uuid is the assigned MAuth App ID
 	app_uuid := flag.String("app-uuid", "", "Specify the App UUID")
-
+	// action is the HTTP Verb to use on the URL
 	action := flag.String("method", "GET", "Specify the method (GET, POST, PUT, DELETE)")
+	// data is the data to be POST or PUT
 	data := flag.String("data", "", "Specify the data")
+	// headers is a flag, which tells the app to print out the response headers
 	headers := flag.Bool("headers", false, "Print the Response Headers")
 
 	flag.Parse()
+
 	// No information supplied
 	if IsNull(config_file) && (IsNull(key_file) || IsNull(app_uuid)) {
 		println("Need to specify configuration file or app settings")

@@ -76,3 +76,4 @@ irb(main):007:0> Base64.encode64(key.private_encrypt(hashed)).delete("\n")
 => "IUjQhtH4C9lbCRTyca+...Tvlg=="
 ```
 * Copy the string to your test case
+

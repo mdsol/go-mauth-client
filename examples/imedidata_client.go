@@ -1,3 +1,4 @@
+// Package examples is used for examples of using the mauth client library
 package examples
 
 import (
@@ -7,6 +8,11 @@ import (
 	"io/ioutil"
 )
 
+/*
+This is an example for querying data from the iMedidata API using the go-mauth-client
+ */
+
+// User struct returned by iMedidata
 type User struct {
 	Login string
 	Email string

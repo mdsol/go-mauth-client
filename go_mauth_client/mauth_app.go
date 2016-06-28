@@ -7,11 +7,13 @@ import (
 	"io/ioutil"
 )
 
+// MAuthApp struct holds all the necessary context for a MAuth App
 type MAuthApp struct {
 	App_ID          string
 	RSA_Private_Key *rsa.PrivateKey
 }
 
+// LoadMauth loads the configuration  when the private key content is in a file
 func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
 	// Create the MAuthApp struct
 	private_key, err := ioutil.ReadFile(key_file_name)
@@ -31,6 +33,7 @@ func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
 	return &app, nil
 }
 
+// LoadMauth loads the configuration  when the private key content is passed (such as from an environment string)
 func LoadMauthFromString(app_id string, key_file_content []byte) (*MAuthApp, error) {
 	// Create the MAuthApp struct, when passed a byte array
 
