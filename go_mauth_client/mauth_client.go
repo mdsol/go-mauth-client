@@ -6,12 +6,13 @@ import (
 	"strings"
 )
 
+// MAuthClient struct holds all the context for a MAuth Client
 type MAuthClient struct {
 	mauth_app *MAuthApp
 	base_url  string
 }
 
-// create a client
+// CreateClient creates a MAuth Client
 func (mauth_app *MAuthApp) CreateClient(base_url string) (client MAuthClient, err error) {
 	client = MAuthClient{mauth_app: mauth_app, base_url: base_url}
 	return
