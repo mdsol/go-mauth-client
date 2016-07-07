@@ -37,9 +37,6 @@ As an alternative the content of the private key can be included using a `privat
 ### Example
 ```sh
 go-mauth-client git:(develop) $ ./go-mauth-client -config innovate.json https://innovate.imedidata.com/api/v2/studies/55555555-5508-45c6-3333-1234512345.json
-Created MAuth App with App UUID: 12345678-c109-11e1-84f6-5432112345
-Status Code: 200
-Response Body:
 {"study":{"name":"Mediflex (DEV)","uuid":"55555555-5508-45c6-3333-1234512345", ... ,"study_environment_type":"Development"}}
 ```
 
