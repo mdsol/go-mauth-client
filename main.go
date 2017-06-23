@@ -1,22 +1,25 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"github.com/mdsol/go-mauth-client/go_mauth_client"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"mime"
 )
 
 /*
 This uses the underlying library to build a MAuth Client tool;
 To build and install:
 $ go install
- */
+*/
 
 // Context for the MAuth Client
 type ApplicationContext struct {
@@ -33,6 +36,15 @@ func CheckAction(action *string) bool {
 	default:
 		return false
 	}
+}
+
+func PrettyJson(in string) (string, error) {
+	var out bytes.Buffer
+	err := json.Indent(&out, []byte(in), "", "\t")
+	if err != nil {
+		return in, err
+	}
+	return out.String(), nil
 }
 
 // Process the Configuration Content
@@ -100,6 +112,8 @@ func main() {
 	headers := flag.Bool("headers", false, "Print the Response Headers")
 	// verbose is a flag, which tells the app to print out more information
 	verbose := flag.Bool("verbose", false, "Print out more information")
+	// pretty is a flag, which tells the app to format json
+	pretty := flag.Bool("pretty", false, "Prettify the JSON")
 
 	flag.Parse()
 
@@ -116,36 +130,36 @@ func main() {
 		var err error
 		mauth_app, err = LoadMAuthConfig(*config_file)
 		if err != nil {
-			println("Error loading configuration: ", err)
+			log.Fatal("Error loading configuration: ", err)
 			os.Exit(1)
 		}
 	} else {
 		var err error
 		mauth_app, err = go_mauth_client.LoadMauth(*app_uuid, *key_file)
 		if err != nil {
-			println("Error loading configuration: ", err)
+			log.Fatal("Error loading configuration: ", err)
 			os.Exit(1)
 		}
 	}
 	if *verbose {
-		fmt.Printf("Created MAuth App with App UUID: %s\n", mauth_app.App_ID)
+		log.Println("Created MAuth App with App UUID: ", mauth_app.App_ID)
 	}
 	action_matches := CheckAction(action)
 	if !action_matches {
-		println("Action ", action, "is not known")
+		log.Fatal("Action ", action, "is not known")
 		flag.Usage()
 		os.Exit(1)
 	}
 	var args []string
 	args = flag.Args()
 	if len(args) == 0 {
-		println("No URL, nothing to do")
+		log.Fatal("No URL, nothing to do")
 		flag.Usage()
 		os.Exit(1)
 	}
 	target_url, err := url.Parse(args[0])
 	if err != nil {
-		println("Unable to parse url: ", err)
+		log.Fatal("Unable to parse url: ", err)
 		os.Exit(1)
 	}
 	client, err := mauth_app.CreateClient(target_url.Scheme + "://" + target_url.Host)
@@ -165,17 +179,34 @@ func main() {
 	}
 	defer response.Body.Close()
 	if *verbose {
-		fmt.Printf("Status Code: %d\n", response.StatusCode)
+		log.Println("Status Code: ", response.StatusCode)
 	}
 	if *headers {
-		fmt.Println("Headers:")
+		log.Println("Headers:")
 		for key, value := range response.Header {
-			fmt.Printf(" %s: %s\n", key, value)
+			log.Printf(" %s: %s\n", key, value)
 		}
 	}
 	body, err := ioutil.ReadAll(response.Body)
 	if *verbose {
-		fmt.Printf("Response Body:\n")
+		log.Println("Response Body:")
 	}
-	fmt.Println(string(body))
+	if *pretty {
+		media_type, _, err := mime.ParseMediaType(response.Header.Get("Content-Type"))
+		if err == nil {
+			if media_type == "application/json" {
+				pretty, err := PrettyJson(string(body))
+				if err != nil {
+					fmt.Println(string(body))
+				} else {
+					fmt.Print(pretty)
+				}
+			} else {
+				fmt.Println(string(body))
+			}
+		}
+
+	} else {
+		fmt.Println(string(body))
+	}
 }
