@@ -38,13 +38,13 @@ func CheckAction(action *string) bool {
 	}
 }
 
-func PrettyJson(in string) (string, error) {
+func PrettyJson(in []byte) ([]byte, error) {
 	var out bytes.Buffer
 	err := json.Indent(&out, []byte(in), "", "\t")
 	if err != nil {
 		return in, err
 	}
-	return out.String(), nil
+	return out.Bytes(), nil
 }
 
 // Process the Configuration Content
@@ -195,11 +195,11 @@ func main() {
 		media_type, _, err := mime.ParseMediaType(response.Header.Get("Content-Type"))
 		if err == nil {
 			if media_type == "application/json" {
-				pretty, err := PrettyJson(string(body))
+				pretty, err := PrettyJson(body)
 				if err != nil {
 					fmt.Println(string(body))
 				} else {
-					fmt.Print(pretty)
+					fmt.Print(string(pretty))
 				}
 			} else {
 				fmt.Println(string(body))
