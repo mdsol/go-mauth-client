@@ -71,7 +71,7 @@ func TestCreateClient(t *testing.T) {
 }
 
 func hasMWSHeader(r *http.Request) bool {
-	for header, _ := range r.Header {
+	for header := range r.Header {
 		if header == "X-Mws-Authentication" {
 			return true
 		}
