@@ -9,10 +9,10 @@ import (
 	"github.com/mdsol/go-mauth-client/go_mauth_client"
 	"io/ioutil"
 	"log"
+	"mime"
 	"net/http"
 	"net/url"
 	"os"
-	"mime"
 )
 
 /*
