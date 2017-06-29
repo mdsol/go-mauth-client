@@ -14,7 +14,7 @@ import (
 
 /*
 Wraps the functions around signing a request and generating the headers
- */
+*/
 
 // MakeAuthenticationHeaders generates the formatted headers as a map for
 // insertion into the request headers.

@@ -2,44 +2,44 @@
 package examples
 
 import (
-	"github.com/mdsol/go-mauth-client/go_mauth_client"
-	"log"
 	"encoding/json"
+	"github.com/mdsol/go-mauth-client/go_mauth_client"
 	"io/ioutil"
+	"log"
 )
 
 /*
 This is an example for querying data from the iMedidata API using the go-mauth-client
- */
+*/
 
 // User struct returned by iMedidata
 type User struct {
-	Login string
-	Email string
-	Uuid string
-	Activation_code string
-	Activation_status string
-	Name string
-	First_name string
-	Last_name string
-	Time_zone string
-	Locale string
-	Institution string
-	Title string
-	Department string
-	Address_line_1 string
-	Address_line_2 string
-	Address_line_3 string
-	City string
-	State string
-	Postal_code string
-	Country string
-	Telephone string
-	Fax string
-	Pager string
-	Mobile string
-	Creator_uuid string
-	Admin string
+	Login                    string
+	Email                    string
+	Uuid                     string
+	Activation_code          string
+	Activation_status        string
+	Name                     string
+	First_name               string
+	Last_name                string
+	Time_zone                string
+	Locale                   string
+	Institution              string
+	Title                    string
+	Department               string
+	Address_line_1           string
+	Address_line_2           string
+	Address_line_3           string
+	City                     string
+	State                    string
+	Postal_code              string
+	Country                  string
+	Telephone                string
+	Fax                      string
+	Pager                    string
+	Mobile                   string
+	Creator_uuid             string
+	Admin                    string
 	Clinical_data_restricted string
 }
 
@@ -49,13 +49,13 @@ type UserResponse struct {
 
 // Example implementing:
 // http://developer.imedidata.com/desktop/ActionTopics/Users/Listing_User_Account_Details.htm
-func GetUserDetails(mauth_app *go_mauth_client.MAuthApp, user_uuid string)(user User, err error){
+func GetUserDetails(mauth_app *go_mauth_client.MAuthApp, user_uuid string) (user User, err error) {
 	client, err := mauth_app.CreateClient("https://innovate.imedidata.com")
 	if err != nil {
 		log.Fatal("Error creating client")
 		return nil, err
 	}
-	user_details_response, err := client.Get("api/v2/users/"+user_uuid+".json")
+	user_details_response, err := client.Get("api/v2/users/" + user_uuid + ".json")
 	if err != nil {
 		log.Fatal("Error downloading User Details")
 		return nil, err

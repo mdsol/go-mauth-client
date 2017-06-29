@@ -3,7 +3,7 @@
 ## Introduction
 This is a simple client for the Medidata MAuth Authentication Protocol.  It can be used to access Platform Services within the Medidata Clinical Cloud.
 
-##The Command Line Tool
+## The Command Line Tool
 As an example a simple cli tool has been added.  It can be built using `go build` and installed using `go install`
 
 ### Usage
@@ -17,9 +17,11 @@ Usage of ./go-mauth-client:
   -data string
     	Specify the data
   -headers
-    	Print the Response Headers (default False)
+    	Print the Response Headers
   -method string
     	Specify the method (GET, POST, PUT, DELETE) (default "GET")
+  -pretty
+    	Prettify the JSON
   -private-key string
     	Specify the private key file
   -verbose
@@ -34,11 +36,29 @@ The configuration file is a simple JSON file with the following structure:
 ```
 As an alternative the content of the private key can be included using a `private_key_text` attribute.
 
-### Example
+### Example Usages
+* Non-prettified output
 ```sh
 go-mauth-client git:(develop) $ ./go-mauth-client -config innovate.json https://innovate.imedidata.com/api/v2/studies/55555555-5508-45c6-3333-1234512345.json
 {"study":{"name":"Mediflex (DEV)","uuid":"55555555-5508-45c6-3333-1234512345", ... ,"study_environment_type":"Development"}}
 ```
+* Prettified output
+```sh
+go-mauth-client git:(develop) $ go-mauth-client -pretty -config credentials_1.json https://innovate.imedidata.com/api/v2/users/c123a678-79e5-11e1-7789-123138140309/studies
+{
+	"studies": [
+		{
+			"name": "test_for_innovate (DEV)",
+			"uuid": "3241245e-b2ae-1123-98f7-145bf03bbbee",
+			"href": "https://innovate.imedidata.com/api/v2/studies/3241245e-b2ae-1123-98f7-145bf03bbbee",
+			"parent_uuid": "9718efe1-4311-11e0-8747-1231390e6521",
+			"created_at": "2013/02/13 20:01:04 +0000",
+			"updated_at": "2016/05/19 21:12:30 +0000"
+		},
+		....
+}
+```
+
 
 ## Developer Notes
 
