@@ -177,6 +177,9 @@ func main() {
 	case "PUT":
 		response, err = client.Put(target_url.String(), *data)
 	}
+	if err != nil {
+		log.Fatal("Error raised in request ", err, " please check")
+	}
 	defer response.Body.Close()
 	if *verbose {
 		log.Println("Status Code: ", response.StatusCode)
