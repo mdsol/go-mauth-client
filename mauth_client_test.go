@@ -62,13 +62,22 @@ func TestFullURLWithActualURL(t *testing.T) {
 func TestCreateClient(t *testing.T) {
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	client, _ := mauth_app.CreateClient("https://innovate.mdsol.com")
-	if client.base_url != "https://innovate.mdsol.com" {
+	if client.baseUrl != "https://innovate.mdsol.com" {
 		t.Error("Base URL has changed")
 	}
-	if client.mauth_app.App_ID != app_id {
+	if client.mauthApp.AppId != app_id {
 		t.Error("App ID has changed")
 	}
 }
+
+
+func TestCreateClientBadURL(t *testing.T) {
+	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	_, err := mauth_app.CreateClient("some_nonsense")
+	if err == nil {
+		t.Error("Bad URL should fail")
+	}
+	}
 
 func hasMWSHeader(r *http.Request) bool {
 	for header := range r.Header {

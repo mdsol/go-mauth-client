@@ -15,7 +15,7 @@ and
 https://medium.com/@matryer/writing-middleware-in-golang-and-how-go-makes-it-so-much-fun-4375c1246e81#.xj15k9f5k
 */
 
-//go:generate go run ../gen.go
+//go:generate go run gen.go
 
 func GetVersion() string {
 	return VersionString
@@ -29,18 +29,18 @@ func isJSON(s string) bool {
 }
 
 // makeRequest formulates the message, including the MAuth Headers and returns a http.Request, ready to send
-func (mauth_app *MAuthApp) makeRequest(method string, rawurl string, body string) (req *http.Request, err error) {
+func (mauthApp *MAuthApp) makeRequest(method string, rawurl string, body string) (req *http.Request, err error) {
 	// Use the url.URL to assist with path management
 	url2, err := url.Parse(rawurl)
 	if err != nil {
 		return nil, err
 	}
 	// this needs to persist
-	seconds_since_epoch := time.Now().Unix()
+	secondsSinceEpoch := time.Now().Unix()
 	// build the MWS string
-	string_to_sign := MakeSignatureString(mauth_app, method, url2.Path, body, seconds_since_epoch)
+	stringToSign := MakeSignatureString(mauthApp, method, url2.Path, body, secondsSinceEpoch)
 	// Sign the string
-	signed_string, err := SignString(mauth_app, string_to_sign)
+	signedString, err := SignString(mauthApp, stringToSign)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (mauth_app *MAuthApp) makeRequest(method string, rawurl string, body string
 		return nil, err
 	}
 	// take everything and build the structure of the MAuth Headers
-	made_headers := MakeAuthenticationHeaders(mauth_app, signed_string, seconds_since_epoch)
+	made_headers := MakeAuthenticationHeaders(mauthApp, signedString, secondsSinceEpoch)
 	for header, value := range made_headers {
 		req.Header.Set(header, value)
 	}
@@ -58,6 +58,6 @@ func (mauth_app *MAuthApp) makeRequest(method string, rawurl string, body string
 	if isJSON(body) {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	req.Header.Set("User-Agent", "go-mauth-client/" + GetVersion())
+	req.Header.Set("User-Agent", "go-mauth-client/"+GetVersion())
 	return req, nil
 }
