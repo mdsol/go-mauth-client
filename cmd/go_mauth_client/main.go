@@ -113,11 +113,18 @@ func main() {
 	headers := flag.Bool("headers", false, "Print the Response Headers")
 	// verbose is a flag, which tells the app to print out more information
 	verbose := flag.Bool("verbose", false, "Print out more information")
-	// pretty is a flag, which tells the app to format json
-	pretty := flag.Bool("pretty", false, "Prettify the JSON")
+	// pretty is a flag, which tells the app to format output (JSON/XML)
+	pretty := flag.Bool("pretty", false, "Prettify the Output")
+
+	// version is a flag, which tells the app to format json
+	version := flag.Bool("version", false, "Print out the version")
 
 	flag.Parse()
 
+	if *version == true {
+		println("Go MAuth Client CLI: Version ", go_mauth_client.GetVersion())
+		os.Exit(0)
+	}
 	// No information supplied
 	if IsNull(configFile) && (IsNull(keyFile) || IsNull(appUuid)) {
 		println("Need to specify configuration file or app settings")
