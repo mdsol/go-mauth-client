@@ -6,14 +6,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/mdsol/go-mauth-client"
 	"io/ioutil"
 	"log"
 	"mime"
 	"net/http"
 	"net/url"
 	"os"
+
 	"github.com/go-xmlfmt/xmlfmt"
+	"github.com/mdsol/go-mauth-client"
 )
 
 /*
