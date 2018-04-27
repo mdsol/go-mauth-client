@@ -3,9 +3,11 @@ package examples
 
 import (
 	"encoding/json"
-	"github.com/mdsol/go-mauth-client/go_mauth_client"
+	"github.com/mdsol/go-mauth-client"
 	"io/ioutil"
 	"log"
+	"fmt"
+	"os"
 )
 
 /*
@@ -47,37 +49,51 @@ type UserResponse struct {
 	User User
 }
 
+
 // Example implementing:
 // http://developer.imedidata.com/desktop/ActionTopics/Users/Listing_User_Account_Details.htm
-func GetUserDetails(mauth_app *go_mauth_client.MAuthApp, user_uuid string) (user User, err error) {
-	client, err := mauth_app.CreateClient("https://innovate.imedidata.com")
+func getUserDetails(mauthApp *go_mauth_client.MAuthApp, userUuid string) (user *User, err error) {
+	client, err := mauthApp.CreateClient("https://innovate.imedidata.com")
 	if err != nil {
 		log.Fatal("Error creating client")
 		return nil, err
 	}
-	user_details_response, err := client.Get("api/v2/users/" + user_uuid + ".json")
+	userDetailsResponse, err := client.Get("api/v2/users/" + userUuid + ".json")
 	if err != nil {
 		log.Fatal("Error downloading User Details")
 		return nil, err
 	}
-	if user_details_response.StatusCode != 200 {
-		log.Fatal("Request status code: ", user_details_response.StatusCode)
+	if userDetailsResponse.StatusCode != 200 {
+		log.Fatal("Request status code: ", userDetailsResponse.StatusCode)
 		return nil, err
 	}
-	defer user_details_response.Body.Close()
+	defer userDetailsResponse.Body.Close()
 
-	content, err := ioutil.ReadAll(user_details_response.Body)
+	content, err := ioutil.ReadAll(userDetailsResponse.Body)
 	if err != nil {
 		log.Fatal("Unable to read response")
 		return nil, err
 	}
-	var user_response UserResponse
+	var userResponse UserResponse
 
-	err = json.Unmarshal(content, &user_response)
+	err = json.Unmarshal(content, &userResponse)
 	if err != nil {
 		log.Fatal("Unable to deserialise response")
 		return nil, err
 	}
-	user = user_response.User
-	return
+	user = &userResponse.User
+	return user, nil
+}
+
+func main()  {
+	userUUID := os.Getenv("USER_UUID")
+	mauthApp, err := loadApp()
+	if err != nil {
+		log.Fatal("Error creating the client")
+	}
+	user, err := getUserDetails(mauthApp, userUUID)
+	if err != nil {
+		log.Fatal(fmt.Printf("Unable to get User: %v",  err))
+	}
+	fmt.Println("User: ", user)
 }
