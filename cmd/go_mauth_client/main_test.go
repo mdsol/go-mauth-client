@@ -51,7 +51,7 @@ func TestLoadMAuthConfig(t *testing.T) {
 	if client == nil {
 		t.Error("Expected existing file to return not nil")
 	}
-	if client.App_ID != "11111111-2222-4105-b42e-88888888888" {
+	if client.AppId != "11111111-2222-4105-b42e-88888888888" {
 		t.Error("Incorrect APP ID")
 	}
 }
@@ -65,7 +65,7 @@ func TestProcessConfiguration(t *testing.T) {
 	if err == nil {
 		t.Error("Expected failure with invalid JSON")
 	}
-	test_json = "{\"private_key_file\":\"go_mauth_client/test/private_key.pem\"}"
+	test_json = "{\"private_key_file\":\"test/private_key.pem\"}"
 	_, err = ProcessConfiguration([]byte(test_json))
 	if err == nil {
 		t.Error("Expected failure with no app_uuid")
@@ -75,12 +75,12 @@ func TestProcessConfiguration(t *testing.T) {
 	if err == nil {
 		t.Error("Expected failure with no private key details")
 	}
-	test_json = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_file\":\"go_mauth_client/test/private_key.pem\"}"
+	test_json = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_file\":\"test/private_key.pem\"}"
 	_, err = ProcessConfiguration([]byte(test_json))
 	if err != nil {
 		t.Error("Expected success with app_uuid and private_key_file")
 	}
-	content, _ := ioutil.ReadFile("go_mauth_client/test/private_key.pem")
+	content, _ := ioutil.ReadFile("test/private_key.pem")
 	key_text := string(content)
 	// escape the newlines
 	key_content := strings.Replace(key_text, "\n", "\\n", -1)
