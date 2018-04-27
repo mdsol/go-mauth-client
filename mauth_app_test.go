@@ -11,24 +11,24 @@ func TestLoadMauth(t *testing.T) {
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
 	}
-	if mauth.App_ID != app_id {
+	if mauth.AppId != app_id {
 		t.Error("App ID doesn't match")
 	}
-	if mauth.RSA_Private_Key.Validate() != nil {
+	if mauth.RsaPrivateKey.Validate() != nil {
 		t.Error("Error validating key")
 	}
 }
 
 func TestLoadMauthFromString(t *testing.T) {
-	key_content, _ := ioutil.ReadFile(filepath.Join("test", "private_key.pem"))
-	mauth, err := LoadMauthFromString(app_id, key_content)
+	keyContent, _ := ioutil.ReadFile(filepath.Join("test", "private_key.pem"))
+	mauth, err := LoadMauthFromString(app_id, keyContent)
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
 	}
-	if mauth.App_ID != app_id {
+	if mauth.AppId != app_id {
 		t.Error("App ID doesn't match")
 	}
-	if mauth.RSA_Private_Key.Validate() != nil {
+	if mauth.RsaPrivateKey.Validate() != nil {
 		t.Error("Error validating key")
 	}
 }
