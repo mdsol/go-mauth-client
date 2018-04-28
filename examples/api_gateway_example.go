@@ -1,29 +1,29 @@
 package examples
 
 import (
-	"github.com/mdsol/go-mauth-client"
-	"log"
 	"fmt"
+	"log"
+
+	"github.com/mdsol/go-mauth-client"
 )
 
 /*
 A Sample API Gateway usage
 */
 
-
- func createClient()(mauthClient *go_mauth_client.MAuthClient, err error){
- 	// load the configuration from the environment
- 	mauthApp, err := loadApp()
- 	if err != nil {
-		log.Fatal("Unable: to load client configuration; " +
-			"did you define MAUTH_APP_UUID and " +
+func createClient() (mauthClient *go_mauth_client.MAuthClient, err error) {
+	// load the configuration from the environment
+	mauthApp, err := loadApp()
+	if err != nil {
+		log.Fatal("Unable: to load client configuration; "+
+			"did you define MAUTH_APP_UUID and "+
 			"MAUTH_PRIVATE_KEY?: ", err)
 	}
 	mauthClient, err = mauthApp.CreateClient("https://apigw.imedidata.com")
- 	return
- }
+	return
+}
 
-func main()  {
+func main() {
 	targetUrl := "https://apigw.imedidata.com/v1/countries"
 
 	mauthClient, err := createClient()

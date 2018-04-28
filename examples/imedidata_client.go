@@ -3,11 +3,12 @@ package examples
 
 import (
 	"encoding/json"
-	"github.com/mdsol/go-mauth-client"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"fmt"
 	"os"
+
+	"github.com/mdsol/go-mauth-client"
 )
 
 /*
@@ -49,7 +50,6 @@ type UserResponse struct {
 	User User
 }
 
-
 // Example implementing:
 // http://developer.imedidata.com/desktop/ActionTopics/Users/Listing_User_Account_Details.htm
 func getUserDetails(mauthApp *go_mauth_client.MAuthApp, userUuid string) (user *User, err error) {
@@ -85,7 +85,7 @@ func getUserDetails(mauthApp *go_mauth_client.MAuthApp, userUuid string) (user *
 	return user, nil
 }
 
-func main()  {
+func main() {
 	userUUID := os.Getenv("USER_UUID")
 	mauthApp, err := loadApp()
 	if err != nil {
@@ -93,7 +93,7 @@ func main()  {
 	}
 	user, err := getUserDetails(mauthApp, userUUID)
 	if err != nil {
-		log.Fatal(fmt.Printf("Unable to get User: %v",  err))
+		log.Fatal(fmt.Printf("Unable to get User: %v", err))
 	}
 	fmt.Println("User: ", user)
 }
