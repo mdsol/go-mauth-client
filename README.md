@@ -6,29 +6,34 @@ This is a simple client for the Medidata MAuth Authentication Protocol.  It can 
 ## The Command Line Tool
 As an example a simple cli tool has been added in the [cmd/go_mauth_client](cmd/go_mauth_client) folder.
 
-It can be built using `go build` and installed using `go install`. 
+It can be installed using:
+    ```bash
+    $ go install github.com/mdsol/go-mauth-client/cmd/go_mauth_client
+    ``` 
 
 ### Usage
-```sh
-Need to specify configuration file or app settings
-Usage of ./go-mauth-client:
-  -app-uuid string
-    	Specify the App UUID
-  -config string
-    	Specify the configuration file
-  -data string
-    	Specify the data
-  -headers
-    	Print the Response Headers
-  -method string
-    	Specify the method (GET, POST, PUT, DELETE) (default "GET")
-  -pretty
-    	Prettify the JSON/XML
-  -private-key string
-    	Specify the private key file
-  -verbose
-    	Print out more information
-```
+    ```bash
+    $ go_mauth_client -help
+    Usage of go_mauth_client:
+      -app-uuid string
+            Specify the App UUID
+      -config string
+            Specify the configuration file
+      -data string
+            Specify the data
+      -headers
+            Print the Response Headers
+      -method string
+            Specify the method (GET, POST, PUT, DELETE) (default "GET")
+      -pretty
+            Prettify the Output
+      -private-key string
+            Specify the private key file
+      -verbose
+            Print out more information
+      -version
+            Print out the version
+    ```
 
 ### The configuration file
 The configuration file is a simple JSON file with the following structure:
