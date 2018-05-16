@@ -1,5 +1,5 @@
 // Package examples is used for examples of using the mauth client library
-package examples
+package imedidata
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/mdsol/go-mauth-client"
+	"github.com/mdsol/go-mauth-client/examples"
 )
 
 /*
@@ -87,7 +88,7 @@ func getUserDetails(mauthApp *go_mauth_client.MAuthApp, userUuid string) (user *
 
 func main() {
 	userUUID := os.Getenv("USER_UUID")
-	mauthApp, err := loadApp()
+	mauthApp, err := examples.LoadApp()
 	if err != nil {
 		log.Fatal("Error creating the client")
 	}

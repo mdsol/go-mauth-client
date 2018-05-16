@@ -7,7 +7,7 @@ import (
 	"github.com/mdsol/go-mauth-client"
 )
 
-func loadApp() (mauthApp *go_mauth_client.MAuthApp, err error) {
+func LoadApp() (mauthApp *go_mauth_client.MAuthApp, err error) {
 	appUUID := os.Getenv("MAUTH_APP_UUID")
 	privateKeyString := os.Getenv("MAUTH_PRIVATE_KEY")
 

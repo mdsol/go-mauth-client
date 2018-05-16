@@ -1,10 +1,11 @@
-package examples
+package api_gateway
 
 import (
 	"fmt"
 	"log"
 
 	"github.com/mdsol/go-mauth-client"
+	"github.com/mdsol/go-mauth-client/examples"
 )
 
 /*
@@ -13,7 +14,7 @@ A Sample API Gateway usage
 
 func createClient() (mauthClient *go_mauth_client.MAuthClient, err error) {
 	// load the configuration from the environment
-	mauthApp, err := loadApp()
+	mauthApp, err := examples.LoadApp()
 	if err != nil {
 		log.Fatal("Unable: to load client configuration; "+
 			"did you define MAUTH_APP_UUID and "+
