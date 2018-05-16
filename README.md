@@ -50,7 +50,7 @@ As an alternative the content of the private key can be included using a `privat
     $ ./go-mauth-client -config innovate.json https://innovate.imedidata.com/api/v2/studies/55555555-5508-45c6-3333-1234512345.json
     {"study":{"name":"Mediflex (DEV)","uuid":"55555555-5508-45c6-3333-1234512345", ... ,"study_environment_type":"Development"}}
     ```
-* Prettified output
+* Prettified output (applies to JSON and XML based on `Content-Type` Header)
     ```bash
     $ go-mauth-client -pretty -config credentials_1.json https://innovate.imedidata.com/api/v2/users/c123a678-79e5-11e1-7789-123138140309/studies
     {
