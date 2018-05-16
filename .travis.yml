@@ -2,6 +2,8 @@ language: go
 go:
   - "1.10"
 
-script:
-  - go get github.com/mdsol/go-mauth-client && go test
-  - go get github.com/mdsol/go-mauth-client/cmd/go_mauth_client && go test
+before_install:
+  - go generate
+
+
+
