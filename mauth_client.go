@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-// TODO: Add support for Impersonation (as the MAuth is wired into the Client)
-
 // MAuthClient struct holds all the context for a MAuth Client
 type MAuthClient struct {
 	mauthApp *MAuthApp
