@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"log"
 )
 
 func TestFullURLWithRelative(t *testing.T) {
@@ -70,14 +71,13 @@ func TestCreateClient(t *testing.T) {
 	}
 }
 
-
 func TestCreateClientBadURL(t *testing.T) {
 	mauth_app, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	_, err := mauth_app.CreateClient("some_nonsense")
 	if err == nil {
 		t.Error("Bad URL should fail")
 	}
-	}
+}
 
 func hasMWSHeader(r *http.Request) bool {
 	for header := range r.Header {
@@ -231,4 +231,51 @@ func TestMAuthClient_Put(t *testing.T) {
 		"{\"fake twitter json string\"}") != 0 {
 		t.Error("Unexpected response body: ", string(content[:]))
 	}
+}
+
+// Example of creating a MAuth Client
+func ExampleMAuthApp_CreateClient() {
+	// given an APP_UUID
+	var appUUID = "7D0B2A90-0825-4AD8-9C1F-E9851795D428"
+	// and a path to a KeyFile
+	var keyPath = filepath.Join("test", "private_key.pem")
+	// create a MAuth client
+	var client *MAuthApp
+	client, err := LoadMauth(appUUID, keyPath)
+	if err != nil {
+		log.Fatal("Unable to create client: ", err)
+	}
+	// Define a base URL
+	var baseURL = "https://innovate.imedidata.com"
+	var mauthClient *MAuthClient
+	mauthClient, err = client.CreateClient(baseURL)
+	if err != nil {
+		log.Fatal("Unable to create MAuth Client: ", err)
+	}
+	println("Successfully created MAuth Client for APP: ", mauthClient.mauthApp.AppId)
+}
+
+// Example of creating a MAuth Client and making a Get Request
+func ExampleMAuthClient_Get() {
+	// given an APP_UUID
+	var appUUID = "7D0B2A90-0825-4AD8-9C1F-E9851795D428"
+	// and a path to a KeyFile
+	var keyPath = filepath.Join("test", "private_key.pem")
+	// create a MAuth client
+	var client *MAuthApp
+	client, err := LoadMauth(appUUID, keyPath)
+	if err != nil {
+		log.Fatal("Unable to create client: ", err)
+	}
+	// Define a base URL
+	var baseURL = "https://innovate.imedidata.com"
+	var mauthClient *MAuthClient
+	mauthClient, err = client.CreateClient(baseURL)
+	if err != nil {
+		log.Fatal("Unable to create MAuth Client: ", err)
+	}
+	// This is made-up
+	var userUuid = "347942BF-9915-405D-BB20-6196597F3BE3"
+	response, err := mauthClient.Get("api/v2/users/" + userUuid + ".json")
+	println("Got a status code of", response.StatusCode, "for request for User UUID", userUuid)
 }

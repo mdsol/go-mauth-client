@@ -72,7 +72,6 @@ func TestSignString(t *testing.T) {
 	}
 }
 
-
 func TestPrivateEncrypt(t *testing.T) {
 	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	enc, err := privateEncrypt(mauthApp, []byte("encrypt_this"))
