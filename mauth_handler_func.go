@@ -17,6 +17,7 @@ https://medium.com/@matryer/writing-middleware-in-golang-and-how-go-makes-it-so-
 
 //go:generate go run gen.go
 
+// Get the Version for this Client
 func GetVersion() string {
 	return VersionString
 }
@@ -58,6 +59,7 @@ func (mauthApp *MAuthApp) makeRequest(method string, rawurl string, body string)
 	if isJSON(body) {
 		req.Header.Set("Content-Type", "application/json")
 	}
+	// Add the User-Agent using the Client Version
 	req.Header.Set("User-Agent", "go-mauth-client/"+GetVersion())
 	return req, nil
 }
