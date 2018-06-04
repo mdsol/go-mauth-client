@@ -1,4 +1,4 @@
-package api_gateway
+package medidata_apis
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 /*
-A Sample API Gateway usage
+A Sample Medidata API usage
 */
 
 func createClient() (mauthClient *go_mauth_client.MAuthClient, err error) {
@@ -20,12 +20,12 @@ func createClient() (mauthClient *go_mauth_client.MAuthClient, err error) {
 			"did you define MAUTH_APP_UUID and "+
 			"MAUTH_PRIVATE_KEY?: ", err)
 	}
-	mauthClient, err = mauthApp.CreateClient("https://apigw.imedidata.com")
+	mauthClient, err = mauthApp.CreateClient("https://api.mdsol.com")
 	return
 }
 
 func main() {
-	targetUrl := "https://apigw.imedidata.com/v1/countries"
+	targetUrl := "https://api.mdsol.com/v1/countries"
 
 	mauthClient, err := createClient()
 	if err != nil {
