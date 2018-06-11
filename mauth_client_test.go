@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 	"log"
+	"encoding/json"
 )
 
 func TestFullURLWithRelative(t *testing.T) {
@@ -257,6 +258,9 @@ func ExampleMAuthApp_CreateClient() {
 
 // Example of creating a MAuth Client and making a Get Request
 func ExampleMAuthClient_Get() {
+	// Get information on a User
+	// http://developer.imedidata.com/desktop/ActionTopics/Users/Listing_User_Account_Details.htm
+
 	// given an APP_UUID
 	var appUUID = "7D0B2A90-0825-4AD8-9C1F-E9851795D428"
 	// and a path to a KeyFile
@@ -269,6 +273,8 @@ func ExampleMAuthClient_Get() {
 	}
 	// Define a base URL
 	var baseURL = "https://innovate.imedidata.com"
+
+	// Define and create the Client
 	var mauthClient *MAuthClient
 	mauthClient, err = client.CreateClient(baseURL)
 	if err != nil {
@@ -278,4 +284,73 @@ func ExampleMAuthClient_Get() {
 	var userUuid = "347942BF-9915-405D-BB20-6196597F3BE3"
 	response, err := mauthClient.Get("api/v2/users/" + userUuid + ".json")
 	println("Got a status code of", response.StatusCode, "for request for User UUID", userUuid)
+}
+
+func ExampleMAuthClient_Post() {
+	// Creating a Study Using a MAuth Client
+	// http://developer.imedidata.com/desktop/ActionTopics/Studies/Creating_Studies.htm
+
+	// given an APP_UUID
+	var appUUID = "7D0B2A90-0825-4AD8-9C1F-E9851795D428"
+	// and a path to a KeyFile
+	var keyPath = filepath.Join("test", "private_key.pem")
+	// create a MAuth client
+	var client *MAuthApp
+	client, err := LoadMauth(appUUID, keyPath)
+	if err != nil {
+		log.Fatal("Unable to create client: ", err)
+	}
+	// Define a base URL
+	var baseURL = "https://innovate.imedidata.com"
+
+	// Define and create the Client
+	var mauthClient *MAuthClient
+	mauthClient, err = client.CreateClient(baseURL)
+	if err != nil {
+		log.Fatal("Unable to create MAuth Client: ", err)
+	}
+
+	// Define the constituent entity references
+	var studyGroupUUID = "347942BF-9915-405D-BB20-6196597F3BE3"
+	var studyUUID = "C3C79E4A-4BFD-4A72-89E9-724A4E6A9D95"
+
+	// This is a slimmed down version of the structure from the reference above
+	type studyDefinition struct {
+		Number           int    `json:"number"`
+		Name             string `json:"name"`
+		IsProduction     bool   `json:"is_production"`
+		TherapeticArea   string `json:"therapeutic_area"`
+		FullDescription  string `json:"full_description"`
+		CompoundCode     string `json:"compound_code"`
+		DrugDevice       string `json:"drug_device"`
+		Title            string `json:"title"`
+		UUID             string
+		Protocol         string `json:"protocol"`
+		ParentUUID       string `json:"parent_UUID"`
+		EnrollmentTarget int    `json:"enrollment_target"`
+		OID              string `json:"oid"`
+	}
+
+	// Create an instance of the new study
+	study := &studyDefinition{
+		Number:1,
+		Name:"ABC1234",
+		IsProduction:true,
+		TherapeticArea:"Endocrine",
+		FullDescription:"Some Sample Study",
+		CompoundCode:"Mediflex",
+		DrugDevice:"Drug",
+		Title:"A sample Endocrine Study",
+		UUID: studyUUID,
+		Protocol:"ABC1234",
+		ParentUUID:"",
+		EnrollmentTarget:150,
+		OID:"ABC1234",
+	}
+	data, _ := json.Marshal(study)
+
+	// POST www.imedidata.com/api/v2/study_groups/[study group uuid]/studies.json
+	response, err := mauthClient.Post("api/v2/study_groups/" + studyGroupUUID + "/studies.json",
+		string(data))
+	println("Got a status code of", response.StatusCode, "for request to create Study",studyUUID)
 }
