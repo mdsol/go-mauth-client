@@ -1,3 +1,10 @@
+// This is a simple client for the Medidata MAuth Authentication Protocol.  It can be used to access Platform Services within the Medidata Clinical Cloud.
+//
+// MAuth Protocol
+//
+// The MAuth protocol provides a fault-tolerant, service-to-service authentication scheme for Medidata and third-party applications that use web services to communicate. The Authentication Service and integrity algorithm is based on digital signatures encrypted and decrypted with a private/public key pair.
+//
+//The Authentication Service has two responsibilities. It provides message integrity and provenance validation by verifying a message sender's signature; its other task is to manage public keys. Each public key is associated with an application and is used to authenticate message signatures. The private key corresponding to the public key in the Authentication Service is stored by the application making a signed request; the request is encrypted with this private key. The Authentication Service has no knowledge of the application's private key, only its public key.
 package go_mauth_client
 
 import (
@@ -12,7 +19,7 @@ type MAuthClient struct {
 	baseUrl  string
 }
 
-// CreateClient creates a MAuth Client
+// CreateClient creates a MAuth Client for the baseUrl
 func (mauthApp *MAuthApp) CreateClient(baseUrl string) (client *MAuthClient, err error) {
 	// check for a bad baseURL
 	_, err = url.ParseRequestURI(baseUrl)
@@ -36,9 +43,9 @@ func (mauthClient *MAuthClient) fullURL(targetUrl string) (fullUrl string, err e
 	return
 }
 
-// MAuthClient.Get executes a GET request against a URL
-func (mauthClient *MAuthClient) Get(target_url string) (response *http.Response, err error) {
-	fullUrl, err := mauthClient.fullURL(target_url)
+// MAuthClient.Get executes a GET request against targetURL
+func (mauthClient *MAuthClient) Get(targetURL string) (response *http.Response, err error) {
+	fullUrl, err := mauthClient.fullURL(targetURL)
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +59,9 @@ func (mauthClient *MAuthClient) Get(target_url string) (response *http.Response,
 	return
 }
 
-// MAuthClient.Delete executes a DELETE request against a URL
-func (mauthClient *MAuthClient) Delete(target_url string) (response *http.Response, err error) {
-	fullUrl, err := mauthClient.fullURL(target_url)
+// MAuthClient.Delete executes a DELETE request against targetURL
+func (mauthClient *MAuthClient) Delete(targetURL string) (response *http.Response, err error) {
+	fullUrl, err := mauthClient.fullURL(targetURL)
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +75,9 @@ func (mauthClient *MAuthClient) Delete(target_url string) (response *http.Respon
 	return
 }
 
-// MAuthClient.Post executes a POST request against a URL
-func (mauthClient *MAuthClient) Post(target_url string, data string) (response *http.Response, err error) {
-	fullUrl, err := mauthClient.fullURL(target_url)
+// MAuthClient.Post executes a POST request against a targetURL
+func (mauthClient *MAuthClient) Post(targetURL string, data string) (response *http.Response, err error) {
+	fullUrl, err := mauthClient.fullURL(targetURL)
 	if err != nil {
 		return nil, err
 	}
@@ -84,9 +91,9 @@ func (mauthClient *MAuthClient) Post(target_url string, data string) (response *
 	return
 }
 
-// MAuthClient.Put executes a PUT request against a URL
-func (mauthClient *MAuthClient) Put(target_url string, data string) (response *http.Response, err error) {
-	fullUrl, err := mauthClient.fullURL(target_url)
+// MAuthClient.Put executes a PUT request against a targetURL
+func (mauthClient *MAuthClient) Put(targetURL string, data string) (response *http.Response, err error) {
+	fullUrl, err := mauthClient.fullURL(targetURL)
 	if err != nil {
 		return nil, err
 	}
