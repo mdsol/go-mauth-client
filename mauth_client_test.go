@@ -1,15 +1,15 @@
 package go_mauth_client
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
-	"log"
-	"encoding/json"
 )
 
 func TestFullURLWithRelative(t *testing.T) {
@@ -333,24 +333,24 @@ func ExampleMAuthClient_Post() {
 
 	// Create an instance of the new study
 	study := &studyDefinition{
-		Number:1,
-		Name:"ABC1234",
-		IsProduction:true,
-		TherapeticArea:"Endocrine",
-		FullDescription:"Some Sample Study",
-		CompoundCode:"Mediflex",
-		DrugDevice:"Drug",
-		Title:"A sample Endocrine Study",
-		UUID: studyUUID,
-		Protocol:"ABC1234",
-		ParentUUID:"",
-		EnrollmentTarget:150,
-		OID:"ABC1234",
+		Number:           1,
+		Name:             "ABC1234",
+		IsProduction:     true,
+		TherapeticArea:   "Endocrine",
+		FullDescription:  "Some Sample Study",
+		CompoundCode:     "Mediflex",
+		DrugDevice:       "Drug",
+		Title:            "A sample Endocrine Study",
+		UUID:             studyUUID,
+		Protocol:         "ABC1234",
+		ParentUUID:       "",
+		EnrollmentTarget: 150,
+		OID:              "ABC1234",
 	}
 	data, _ := json.Marshal(study)
 
 	// POST www.imedidata.com/api/v2/study_groups/[study group uuid]/studies.json
-	response, err := mauthClient.Post("api/v2/study_groups/" + studyGroupUUID + "/studies.json",
+	response, err := mauthClient.Post("api/v2/study_groups/"+studyGroupUUID+"/studies.json",
 		string(data))
-	println("Got a status code of", response.StatusCode, "for request to create Study",studyUUID)
+	println("Got a status code of", response.StatusCode, "for request to create Study", studyUUID)
 }
