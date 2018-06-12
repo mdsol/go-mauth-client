@@ -2,9 +2,9 @@ package go_mauth_client
 
 import (
 	"io/ioutil"
+	"log"
 	"path/filepath"
 	"testing"
-	"log"
 )
 
 func TestLoadMauth(t *testing.T) {
