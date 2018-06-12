@@ -1,3 +1,5 @@
+// go_mauth_client is a small application using the MAuth Library to make signed calls against Medidata APIs
+//
 package main
 
 import (
@@ -17,12 +19,6 @@ import (
 	"github.com/mdsol/go-mauth-client"
 )
 
-/*
-This uses the underlying library to build a MAuth Client tool;
-To build and install:
-$ go install
-*/
-
 // Context for the MAuth Client
 type ApplicationContext struct {
 	appUuid        string
@@ -40,6 +36,7 @@ func CheckAction(action *string) bool {
 	}
 }
 
+// Prettify JSON Output
 func PrettyJson(in []byte) ([]byte, error) {
 	var out bytes.Buffer
 	err := json.Indent(&out, []byte(in), "", "\t")
