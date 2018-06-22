@@ -1,3 +1,5 @@
+// go_mauth_client is a small application using the MAuth Library to make signed calls against Medidata APIs
+//
 package main
 
 import (
@@ -6,26 +8,22 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/mdsol/go-mauth-client/go_mauth_client"
 	"io/ioutil"
 	"log"
 	"mime"
 	"net/http"
 	"net/url"
 	"os"
-)
 
-/*
-This uses the underlying library to build a MAuth Client tool;
-To build and install:
-$ go install
-*/
+	"github.com/go-xmlfmt/xmlfmt"
+	"github.com/mdsol/go-mauth-client"
+)
 
 // Context for the MAuth Client
 type ApplicationContext struct {
-	app_uuid         string
-	private_key_text []byte
-	private_key_file string
+	appUuid        string
+	privateKeyText []byte
+	privateKeyFile string
 }
 
 // Check that the passed verb is one we prepared for
@@ -38,6 +36,7 @@ func CheckAction(action *string) bool {
 	}
 }
 
+// Prettify JSON Output
 func PrettyJson(in []byte) ([]byte, error) {
 	var out bytes.Buffer
 	err := json.Indent(&out, []byte(in), "", "\t")
@@ -48,38 +47,38 @@ func PrettyJson(in []byte) ([]byte, error) {
 }
 
 // Process the Configuration Content
-func ProcessConfiguration(content []byte) (mauth_app *go_mauth_client.MAuthApp, err error) {
+func ProcessConfiguration(content []byte) (mauthApp *go_mauth_client.MAuthApp, err error) {
 	var context map[string]string
 	err = json.Unmarshal(content, &context)
 	if err != nil {
 		return nil, err
 	}
-	app_uuid := context["app_uuid"]
-	private_key_file := context["private_key_file"]
-	private_key_text := context["private_key_text"]
-	if IsNull(&app_uuid) {
+	appUuid := context["app_uuid"]
+	privateKeyFile := context["private_key_file"]
+	privateKeyText := context["private_key_text"]
+	if IsNull(&appUuid) {
 		return nil, errors.New("Need an app_uuid specified")
 	}
 
 	// No key, textual or file-based, passed in
-	if IsNull(&private_key_file) && IsNull(&private_key_text) {
+	if IsNull(&privateKeyFile) && IsNull(&privateKeyText) {
 		return nil, errors.New("Need a key specified")
 	}
 	// Load from text
-	if IsNull(&private_key_file) {
+	if IsNull(&privateKeyFile) {
 		// read from the embedded value
-		mauth_app, err = go_mauth_client.LoadMauthFromString(app_uuid,
-			[]byte(private_key_text))
+		mauthApp, err = go_mauth_client.LoadMauthFromString(appUuid,
+			[]byte(privateKeyText))
 	} else {
 		// load the key from a file
-		mauth_app, err = go_mauth_client.LoadMauth(app_uuid,
-			private_key_file)
+		mauthApp, err = go_mauth_client.LoadMauth(appUuid,
+			privateKeyFile)
 	}
 	return
 }
 
 // LoadMAuthConfig loads the Configuration from a JSON file (No YAML support in corelib)
-func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err error) {
+func LoadMAuthConfig(file_name string) (mauthApp *go_mauth_client.MAuthApp, err error) {
 	if _, err = os.Stat(file_name); os.IsNotExist(err) {
 		return nil, err
 	}
@@ -87,7 +86,7 @@ func LoadMAuthConfig(file_name string) (mauth_app *go_mauth_client.MAuthApp, err
 	if err != nil {
 		return nil, err
 	}
-	mauth_app, err = ProcessConfiguration(content)
+	mauthApp, err = ProcessConfiguration(content)
 	return
 }
 
@@ -99,11 +98,11 @@ func IsNull(value *string) bool {
 // Main function, go!
 func main() {
 	// config_file is the path to the configuration file
-	config_file := flag.String("config", "", "Specify the configuration file")
+	configFile := flag.String("config", "", "Specify the configuration file")
 	// key_file is the path to the private key file
-	key_file := flag.String("private-key", "", "Specify the private key file")
+	keyFile := flag.String("private-key", "", "Specify the private key file")
 	// app_uuid is the assigned MAuth App ID
-	app_uuid := flag.String("app-uuid", "", "Specify the App UUID")
+	appUuid := flag.String("app-uuid", "", "Specify the App UUID")
 	// action is the HTTP Verb to use on the URL
 	action := flag.String("method", "GET", "Specify the method (GET, POST, PUT, DELETE)")
 	// data is the data to be POST or PUT
@@ -112,40 +111,47 @@ func main() {
 	headers := flag.Bool("headers", false, "Print the Response Headers")
 	// verbose is a flag, which tells the app to print out more information
 	verbose := flag.Bool("verbose", false, "Print out more information")
-	// pretty is a flag, which tells the app to format json
-	pretty := flag.Bool("pretty", false, "Prettify the JSON")
+	// pretty is a flag, which tells the app to format output (JSON/XML)
+	pretty := flag.Bool("pretty", false, "Prettify the Output")
+
+	// version is a flag, which tells the app to format json
+	version := flag.Bool("version", false, "Print out the version")
 
 	flag.Parse()
 
+	if *version == true {
+		println("Go MAuth Client CLI: Version ", go_mauth_client.GetVersion())
+		os.Exit(0)
+	}
 	// No information supplied
-	if IsNull(config_file) && (IsNull(key_file) || IsNull(app_uuid)) {
+	if IsNull(configFile) && (IsNull(keyFile) || IsNull(appUuid)) {
 		println("Need to specify configuration file or app settings")
 		flag.Usage()
 		os.Exit(1)
 	}
-	var mauth_app *go_mauth_client.MAuthApp
+	var mauthApp *go_mauth_client.MAuthApp
 	// Load the MAuth Config
-	if !IsNull(config_file) {
+	if !IsNull(configFile) {
 		// a config file has been passed
 		var err error
-		mauth_app, err = LoadMAuthConfig(*config_file)
+		mauthApp, err = LoadMAuthConfig(*configFile)
 		if err != nil {
 			log.Fatal("Error loading configuration: ", err)
 			os.Exit(1)
 		}
 	} else {
 		var err error
-		mauth_app, err = go_mauth_client.LoadMauth(*app_uuid, *key_file)
+		mauthApp, err = go_mauth_client.LoadMauth(*appUuid, *keyFile)
 		if err != nil {
 			log.Fatal("Error loading configuration: ", err)
 			os.Exit(1)
 		}
 	}
 	if *verbose {
-		log.Println("Created MAuth App with App UUID: ", mauth_app.App_ID)
+		log.Println("Created MAuth App with App UUID: ", mauthApp.AppId)
 	}
-	action_matches := CheckAction(action)
-	if !action_matches {
+	actionMatches := CheckAction(action)
+	if !actionMatches {
 		log.Fatal("Action ", action, "is not known")
 		flag.Usage()
 		os.Exit(1)
@@ -157,25 +163,28 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	target_url, err := url.Parse(args[0])
+	targetUrl, err := url.Parse(args[0])
 	if err != nil {
 		log.Fatal("Unable to parse url: ", err)
 		os.Exit(1)
 	}
-	client, err := mauth_app.CreateClient(target_url.Scheme + "://" + target_url.Host)
+	client, err := mauthApp.CreateClient(targetUrl.Scheme + "://" + targetUrl.Host)
 	var response *http.Response
 	switch *action {
 	case "GET":
-		response, err = client.Get(target_url.String())
+		response, err = client.Get(targetUrl.String())
 
 	case "DELETE":
-		response, err = client.Delete(target_url.String())
+		response, err = client.Delete(targetUrl.String())
 
 	case "POST":
-		response, err = client.Post(target_url.String(), *data)
+		response, err = client.Post(targetUrl.String(), *data)
 
 	case "PUT":
-		response, err = client.Put(target_url.String(), *data)
+		response, err = client.Put(targetUrl.String(), *data)
+	}
+	if err != nil {
+		log.Fatal("Error raised in request ", err, " please check")
 	}
 	defer response.Body.Close()
 	if *verbose {
@@ -192,15 +201,19 @@ func main() {
 		log.Println("Response Body:")
 	}
 	if *pretty {
-		media_type, _, err := mime.ParseMediaType(response.Header.Get("Content-Type"))
+		mediaType, _, err := mime.ParseMediaType(response.Header.Get("Content-Type"))
 		if err == nil {
-			if media_type == "application/json" {
+			if mediaType == "application/json" {
+				// Format the JSON output
 				pretty, err := PrettyJson(body)
 				if err != nil {
 					fmt.Println(string(body))
 				} else {
 					fmt.Print(string(pretty))
 				}
+			} else if mediaType == "application/xml" || mediaType == "text/xml" {
+				// Format the XML output
+				fmt.Println(xmlfmt.FormatXML(string(body), "  ", "  "))
 			} else {
 				fmt.Println(string(body))
 			}

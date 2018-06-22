@@ -1,16 +1,17 @@
-// Package examples is used for examples of using the mauth client library
-package examples
+// The imedidata package is an example of using the Go MAuth Client library to call the iMedidata API
+//
+package imedidata
 
 import (
 	"encoding/json"
-	"github.com/mdsol/go-mauth-client/go_mauth_client"
+	"fmt"
 	"io/ioutil"
 	"log"
-)
+	"os"
 
-/*
-This is an example for querying data from the iMedidata API using the go-mauth-client
-*/
+	"github.com/mdsol/go-mauth-client"
+	"github.com/mdsol/go-mauth-client/examples"
+)
 
 // User struct returned by iMedidata
 type User struct {
@@ -43,41 +44,62 @@ type User struct {
 	Clinical_data_restricted string
 }
 
+// Wrapper for the response
 type UserResponse struct {
 	User User
 }
 
-// Example implementing:
+// Example Client to retrieve User details from iMedidata based on the following link:
 // http://developer.imedidata.com/desktop/ActionTopics/Users/Listing_User_Account_Details.htm
-func GetUserDetails(mauth_app *go_mauth_client.MAuthApp, user_uuid string) (user User, err error) {
-	client, err := mauth_app.CreateClient("https://innovate.imedidata.com")
+func GetUserDetails(mauthApp *go_mauth_client.MAuthApp, userUuid string) (user *User, err error) {
+	// create the Client
+	client, err := mauthApp.CreateClient("https://innovate.imedidata.com")
 	if err != nil {
 		log.Fatal("Error creating client")
 		return nil, err
 	}
-	user_details_response, err := client.Get("api/v2/users/" + user_uuid + ".json")
+	// make a call for the User Service
+	userDetailsResponse, err := client.Get("api/v2/users/" + userUuid + ".json")
 	if err != nil {
 		log.Fatal("Error downloading User Details")
 		return nil, err
 	}
-	if user_details_response.StatusCode != 200 {
-		log.Fatal("Request status code: ", user_details_response.StatusCode)
+	// Check the response
+	if userDetailsResponse.StatusCode != 200 {
+		log.Fatal("Request status code: ", userDetailsResponse.StatusCode)
 		return nil, err
 	}
-	defer user_details_response.Body.Close()
+	defer userDetailsResponse.Body.Close()
 
-	content, err := ioutil.ReadAll(user_details_response.Body)
+	// get the contents of the response
+	content, err := ioutil.ReadAll(userDetailsResponse.Body)
 	if err != nil {
 		log.Fatal("Unable to read response")
 		return nil, err
 	}
-	var user_response UserResponse
+	var userResponse UserResponse
 
-	err = json.Unmarshal(content, &user_response)
+	// unpack the response into a userResponse instance
+	err = json.Unmarshal(content, &userResponse)
 	if err != nil {
 		log.Fatal("Unable to deserialise response")
 		return nil, err
 	}
-	user = user_response.User
-	return
+	// Return the User
+	user = &userResponse.User
+	return user, nil
+}
+
+// Make the application executable
+func main() {
+	userUUID := os.Getenv("USER_UUID")
+	mauthApp, err := examples.LoadApp()
+	if err != nil {
+		log.Fatal("Error creating the client")
+	}
+	user, err := GetUserDetails(mauthApp, userUUID)
+	if err != nil {
+		log.Fatal(fmt.Printf("Unable to get User: %v", err))
+	}
+	fmt.Println("User: ", user)
 }

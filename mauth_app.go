@@ -9,27 +9,27 @@ import (
 
 // MAuthApp struct holds all the necessary context for a MAuth App
 type MAuthApp struct {
-	App_ID          string
-	RSA_Private_Key *rsa.PrivateKey
+	AppId         string
+	RsaPrivateKey *rsa.PrivateKey
 }
 
 // LoadMauth loads the configuration  when the private key content is in a file
 func LoadMauth(app_id string, key_file_name string) (*MAuthApp, error) {
 	// Create the MAuthApp struct
-	private_key, err := ioutil.ReadFile(key_file_name)
+	privateKey, err := ioutil.ReadFile(key_file_name)
 	if err != nil {
 		return nil, err
 	}
 
-	block, _ := pem.Decode(private_key)
+	block, _ := pem.Decode(privateKey)
 
 	privatekey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	app := MAuthApp{App_ID: app_id,
-		RSA_Private_Key: privatekey}
+	app := MAuthApp{AppId: app_id,
+		RsaPrivateKey: privatekey}
 	return &app, nil
 }
 
@@ -39,12 +39,12 @@ func LoadMauthFromString(app_id string, key_file_content []byte) (*MAuthApp, err
 
 	block, _ := pem.Decode(key_file_content)
 
-	privatekey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	app := MAuthApp{App_ID: app_id,
-		RSA_Private_Key: privatekey}
+	app := MAuthApp{AppId: app_id,
+		RsaPrivateKey: privateKey}
 	return &app, nil
 }
