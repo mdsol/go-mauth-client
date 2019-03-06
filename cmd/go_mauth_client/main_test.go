@@ -58,25 +58,25 @@ func TestLoadMAuthConfig(t *testing.T) {
 
 // Confirm that once we get a file or string we process it appropriately
 func TestProcessConfiguration(t *testing.T) {
-	var test_json string
+	var testJson string
 
-	test_json = "{"
-	_, err := ProcessConfiguration([]byte(test_json))
+	testJson = "{"
+	_, err := ProcessConfiguration([]byte(testJson))
 	if err == nil {
 		t.Error("Expected failure with invalid JSON")
 	}
-	test_json = "{\"private_key_file\":\"test/private_key.pem\"}"
-	_, err = ProcessConfiguration([]byte(test_json))
+	testJson = "{\"private_key_file\":\"test/private_key.pem\"}"
+	_, err = ProcessConfiguration([]byte(testJson))
 	if err == nil {
 		t.Error("Expected failure with no app_uuid")
 	}
-	test_json = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\"}"
-	_, err = ProcessConfiguration([]byte(test_json))
+	testJson = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\"}"
+	_, err = ProcessConfiguration([]byte(testJson))
 	if err == nil {
 		t.Error("Expected failure with no private key details")
 	}
-	test_json = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_file\":\"test/private_key.pem\"}"
-	_, err = ProcessConfiguration([]byte(test_json))
+	testJson = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_file\":\"test/private_key.pem\"}"
+	_, err = ProcessConfiguration([]byte(testJson))
 	if err != nil {
 		t.Error("Expected success with app_uuid and private_key_file")
 	}
@@ -84,8 +84,8 @@ func TestProcessConfiguration(t *testing.T) {
 	key_text := string(content)
 	// escape the newlines
 	key_content := strings.Replace(key_text, "\n", "\\n", -1)
-	test_json = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_text\":\"" + key_content + "\"}"
-	_, err = ProcessConfiguration([]byte(test_json))
+	testJson = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_text\":\"" + key_content + "\"}"
+	_, err = ProcessConfiguration([]byte(testJson))
 	if err != nil {
 		t.Error("Expected success with app_uuid and private_key_text")
 	}
