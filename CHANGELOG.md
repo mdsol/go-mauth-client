@@ -5,4 +5,5 @@
 * Added `SetHeader` to `MAuthClient` to allow passing headers to request objects
 * Added option `-mcc-version` to command line tool to set the correct headers
 * Fixed remnants of pythonic naming 
+* Added @johnduhart suggestion for signing function
 
