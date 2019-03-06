@@ -1,35 +1,37 @@
 package go_mauth_client
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestIsJsonNotJson(t *testing.T) {
 	content := `Platypus`
-	is_json := isJSON(content)
-	if is_json != false {
+	isJson := isJSON(content)
+	if isJson != false {
 		t.Error("Not JSON, but thinks it is")
 	}
 }
 
 func TestIsJsonIsJson(t *testing.T) {
 	var content = `"123"`
-	var is_json bool
-	is_json = isJSON(content)
-	if is_json != true {
+	var isJson bool
+	isJson = isJSON(content)
+	if isJson != true {
 		t.Error("Is JSON, but thinks it is not")
 	}
 	content = `{"number": 123}`
-	is_json = isJSON(content)
-	if is_json != true {
+	isJson = isJSON(content)
+	if isJson != true {
 		t.Error("Is JSON, but thinks it is not")
 	}
 	content = `{"number": "123"}`
-	is_json = isJSON(content)
-	if is_json != true {
+	isJson = isJSON(content)
+	if isJson != true {
 		t.Error("Is JSON, but thinks it is not")
 	}
 	content = `[{"number": "123"}]`
-	is_json = isJSON(content)
-	if is_json != true {
+	isJson = isJSON(content)
+	if isJson != true {
 		t.Error("Is JSON, but thinks it is not")
 	}
 }

@@ -1,11 +1,7 @@
 package go_mauth_client
 
 import (
-	"bytes"
 	"encoding/json"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 /*
@@ -27,39 +23,4 @@ func GetVersion() string {
 func isJSON(s string) bool {
 	var js json.RawMessage
 	return json.Unmarshal([]byte(s), &js) == nil
-}
-
-// makeRequest formulates the message, including the MAuth Headers and returns a http.Request, ready to send
-func (mauthApp *MAuthApp) makeRequest(method string, rawurl string, body string) (req *http.Request, err error) {
-	// Use the url.URL to assist with path management
-	url2, err := url.Parse(rawurl)
-	if err != nil {
-		return nil, err
-	}
-	// this needs to persist
-	secondsSinceEpoch := time.Now().Unix()
-	// build the MWS string
-	stringToSign := MakeSignatureString(mauthApp, method, url2.Path, body, secondsSinceEpoch)
-	// Sign the string
-	signedString, err := SignString(mauthApp, stringToSign)
-	if err != nil {
-		return nil, err
-	}
-	// create a new request object
-	req, err = http.NewRequest(method, rawurl, bytes.NewBuffer([]byte(body)))
-	if err != nil {
-		return nil, err
-	}
-	// take everything and build the structure of the MAuth Headers
-	made_headers := MakeAuthenticationHeaders(mauthApp, signedString, secondsSinceEpoch)
-	for header, value := range made_headers {
-		req.Header.Set(header, value)
-	}
-	// Detect JSON, send appropriate Content-Type if detected
-	if isJSON(body) {
-		req.Header.Set("Content-Type", "application/json")
-	}
-	// Add the User-Agent using the Client Version
-	req.Header.Set("User-Agent", "go-mauth-client/"+GetVersion())
-	return req, nil
 }
