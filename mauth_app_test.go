@@ -145,7 +145,7 @@ func TestMAuthApp_makeRequestJSON(t *testing.T) {
 	}
 }
 
-func TestMAuthApp_makeRequesInvalidURL(t *testing.T) {
+func TestMAuthApp_makeRequestInvalidURL(t *testing.T) {
 	mauth, err := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
