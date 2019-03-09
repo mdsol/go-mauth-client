@@ -32,7 +32,7 @@ func GetCountriesService(mauthClient *go_mauth_client.MAuthClient) (result *http
 	targetUrl := "https://api.mdsol.com/countries"
 
 	// make sure you specify the correct version
-	mauthClient.SetHeader("Mcc-version", "v2019-03-22")
+	mauthClient.SetHeader("Mcc-Version", "v2019-03-22")
 
 	// get the response
 	result, err = mauthClient.Get(targetUrl)

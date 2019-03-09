@@ -335,7 +335,7 @@ func TestMAuthClient_SetHeader(t *testing.T) {
 	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Set a Header
-	client.SetHeader("Mcc-version", "v2019-03-22")
+	client.SetHeader("Mcc-Version", "v2019-03-22")
 	// Make the Get call
 	response, err := client.Put("/api/v2/users.json", `{"uuid":"1234-1234"}`)
 	if err != nil {
