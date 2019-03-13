@@ -21,31 +21,49 @@ import (
 
 // MAuthClient struct holds all the context for a MAuth Client
 type MAuthClient struct {
-	mauthApp *MAuthApp
-	baseUrl  string
+	mauthApp     *MAuthApp
+	baseUrl      *url.URL
+	extraHeaders map[string][]string
 }
 
 // CreateClient creates a MAuth Client for the baseUrl
 func (mauthApp *MAuthApp) CreateClient(baseUrl string) (client *MAuthClient, err error) {
 	// check for a bad baseURL
-	_, err = url.ParseRequestURI(baseUrl)
+	parsedURL, err := url.ParseRequestURI(baseUrl)
 	if err != nil {
 		return nil, err
 	}
-	client = &MAuthClient{mauthApp: mauthApp, baseUrl: baseUrl}
+	client = &MAuthClient{mauthApp: mauthApp,
+		baseUrl:      parsedURL,
+		extraHeaders: make(map[string][]string)}
 	return
+}
+
+// add a Header
+func (client *MAuthClient) SetHeader(headerName, headerValue string) {
+	header, exists := client.extraHeaders[headerName]
+	if !exists {
+		header = []string{}
+	}
+	header = append(header, headerValue)
+	client.extraHeaders[headerName] = header
 }
 
 // fullURL returns the full URL, if we have a path it will prepend the base_url
 func (mauthClient *MAuthClient) fullURL(targetUrl string) (fullUrl string, err error) {
+	var parsedUrl *url.URL
 	if strings.HasPrefix(targetUrl, "http") {
-		fullUrl = targetUrl
+		// an entire URL
+		parsedUrl, err = url.Parse(targetUrl)
+		if err != nil {
+			return "", err
+		}
 	} else {
-		// We validate the URL on create
-		parsedUrl, _ := url.Parse(mauthClient.baseUrl)
+		parsedUrl = mauthClient.baseUrl
+		// a partial URL
 		parsedUrl.Path = targetUrl
-		fullUrl = parsedUrl.String()
 	}
+	fullUrl = parsedUrl.String()
 	return
 }
 
@@ -55,7 +73,7 @@ func (mauthClient *MAuthClient) Get(targetURL string) (response *http.Response, 
 	if err != nil {
 		return nil, err
 	}
-	req, err := mauthClient.mauthApp.makeRequest("GET", fullUrl, "")
+	req, err := mauthClient.mauthApp.makeRequest("GET", fullUrl, "", mauthClient.extraHeaders)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +89,7 @@ func (mauthClient *MAuthClient) Delete(targetURL string) (response *http.Respons
 	if err != nil {
 		return nil, err
 	}
-	req, err := mauthClient.mauthApp.makeRequest("DELETE", fullUrl, "")
+	req, err := mauthClient.mauthApp.makeRequest("DELETE", fullUrl, "", mauthClient.extraHeaders)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +105,7 @@ func (mauthClient *MAuthClient) Post(targetURL string, data string) (response *h
 	if err != nil {
 		return nil, err
 	}
-	req, err := mauthClient.mauthApp.makeRequest("POST", fullUrl, data)
+	req, err := mauthClient.mauthApp.makeRequest("POST", fullUrl, data, mauthClient.extraHeaders)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +121,7 @@ func (mauthClient *MAuthClient) Put(targetURL string, data string) (response *ht
 	if err != nil {
 		return nil, err
 	}
-	req, err := mauthClient.mauthApp.makeRequest("PUT", fullUrl, data)
+	req, err := mauthClient.mauthApp.makeRequest("PUT", fullUrl, data, mauthClient.extraHeaders)
 	if err != nil {
 		return nil, err
 	}

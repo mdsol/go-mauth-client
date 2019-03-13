@@ -29,7 +29,10 @@ func createClient() (mauthClient *go_mauth_client.MAuthClient, err error) {
 // Get the results from the Countries API
 func GetCountriesService(mauthClient *go_mauth_client.MAuthClient) (result *http.Response, err error) {
 	// Access the Countries API
-	targetUrl := "https://api.mdsol.com/v1/countries"
+	targetUrl := "https://api.mdsol.com/countries"
+
+	// make sure you specify the correct version
+	mauthClient.SetHeader("Mcc-Version", "v2019-03-22")
 
 	// get the response
 	result, err = mauthClient.Get(targetUrl)

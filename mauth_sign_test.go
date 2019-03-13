@@ -71,14 +71,3 @@ func TestSignString(t *testing.T) {
 		t.Error("Encryption does not match: ", actual)
 	}
 }
-
-func TestPrivateEncrypt(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
-	enc, err := privateEncrypt(mauthApp, []byte("encrypt_this"))
-	if err != nil {
-		t.Error(err)
-	}
-	if len(enc) != 256 {
-		t.Error("Wrong size of encrypted data")
-	}
-}

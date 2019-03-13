@@ -78,11 +78,11 @@ func ProcessConfiguration(content []byte) (mauthApp *go_mauth_client.MAuthApp, e
 }
 
 // LoadMAuthConfig loads the Configuration from a JSON file (No YAML support in corelib)
-func LoadMAuthConfig(file_name string) (mauthApp *go_mauth_client.MAuthApp, err error) {
-	if _, err = os.Stat(file_name); os.IsNotExist(err) {
+func LoadMAuthConfig(fileName string) (mauthApp *go_mauth_client.MAuthApp, err error) {
+	if _, err = os.Stat(fileName); os.IsNotExist(err) {
 		return nil, err
 	}
-	content, err := ioutil.ReadFile(file_name)
+	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,8 @@ func main() {
 	verbose := flag.Bool("verbose", false, "Print out more information")
 	// pretty is a flag, which tells the app to format output (JSON/XML)
 	pretty := flag.Bool("pretty", false, "Prettify the Output")
-
+	// Mcc-Version
+	mccVersion := flag.String("mcc-version", "", "Specify the MCC version for the endpoint")
 	// version is a flag, which tells the app to format json
 	version := flag.Bool("version", false, "Print out the version")
 
@@ -169,6 +170,13 @@ func main() {
 		os.Exit(1)
 	}
 	client, err := mauthApp.CreateClient(targetUrl.Scheme + "://" + targetUrl.Host)
+	if err != nil {
+		log.Fatalf("Error creating MAuthClient: %s", err)
+		os.Exit(1)
+	}
+	if *mccVersion != "" {
+		client.SetHeader("Mcc-version", *mccVersion)
+	}
 	var response *http.Response
 	switch *action {
 	case "GET":
