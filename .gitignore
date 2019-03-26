@@ -28,6 +28,3 @@ _testmain.go
 
 ### Ignore the local executable
 cmd/go_mauth_client/go_mauth_client
-
-### Ignore the static version.go
-version.go
