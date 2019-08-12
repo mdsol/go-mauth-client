@@ -20,7 +20,7 @@ Wraps the functions around signing a request and generating the headers
 // insertion into the request headers.
 func MakeAuthenticationHeaders(mauthApp *MAuthApp, signed_string string, seconds_since_epoch int64) map[string]string {
 	headers := map[string]string{
-		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauthApp.AppId, signed_string),
+		"X-MWS-Authentication": fmt.Sprintf("MWS %s:%s", mauthApp.AppID, signed_string),
 		"X-MWS-Time":           strconv.FormatInt(seconds_since_epoch, 10),
 	}
 	return headers
@@ -33,7 +33,7 @@ func MakeSignatureString(mauthApp *MAuthApp, method string, url string, body str
 	}
 	// remove the query strings
 	return strings.Join([]string{method, strings.Split(url, "?")[0],
-		body, mauthApp.AppId, strconv.FormatInt(epoch, 10)}, "\n")
+		body, mauthApp.AppID, strconv.FormatInt(epoch, 10)}, "\n")
 }
 
 // SignString encrypts and encodes the string to sign
