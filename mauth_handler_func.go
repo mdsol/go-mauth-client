@@ -11,7 +11,7 @@ and
 https://medium.com/@matryer/writing-middleware-in-golang-and-how-go-makes-it-so-much-fun-4375c1246e81#.xj15k9f5k
 */
 
-// Get the Version for this Client
+// GetVersion - Gets the Version for this Client
 func GetVersion() string {
 	return VersionString
 }
