@@ -15,7 +15,7 @@ import (
 
 // MAuthApp struct holds all the necessary context for a MAuth App
 type MAuthApp struct {
-	AppId         string
+	AppID         string
 	RsaPrivateKey *rsa.PrivateKey
 }
 
@@ -38,7 +38,7 @@ func LoadMauthFromString(appId string, keyFileContent []byte) (*MAuthApp, error)
 
 	block, _ := pem.Decode(keyFileContent)
 	if block == nil {
-		return nil, errors.New("Unable to extract PEM content")
+		return nil, errors.New("unable to extract PEM content")
 	}
 
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
@@ -46,7 +46,7 @@ func LoadMauthFromString(appId string, keyFileContent []byte) (*MAuthApp, error)
 		return nil, err
 	}
 
-	app := MAuthApp{AppId: appId,
+	app := MAuthApp{AppID: appId,
 		RsaPrivateKey: privateKey}
 	return &app, nil
 }
@@ -84,8 +84,12 @@ func (mauthApp *MAuthApp) makeRequest(method string, rawurl string, body string,
 	}
 	// Merge in any extra headers
 	for header, values := range extraHeaders {
-		for _, value := range values {
-			req.Header.Add(header, value)
+		if len(values) == 1 {
+			req.Header.Set(header, values[0])
+		} else {
+			for _, value := range values {
+				req.Header.Add(header, value)
+			}
 		}
 	}
 	// Add the User-Agent using the Client Version

@@ -9,11 +9,11 @@ import (
 )
 
 func TestLoadMauth(t *testing.T) {
-	mauth, err := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauth, err := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
 	}
-	if mauth.AppId != app_id {
+	if mauth.AppID != appID {
 		t.Error("App ID doesn't match")
 	}
 	if mauth.RsaPrivateKey.Validate() != nil {
@@ -22,21 +22,21 @@ func TestLoadMauth(t *testing.T) {
 }
 
 func TestLoadMauthMissingFile(t *testing.T) {
-	_, err := LoadMauth(app_id, filepath.Join("test", "banana.pem"))
+	_, err := LoadMauth(appID, filepath.Join("test", "banana.pem"))
 	if err == nil {
 		t.Error("Expected Error creating the MAuth Struct")
 	}
 }
 
 func TestLoadMauthNotKey(t *testing.T) {
-	_, err := LoadMauth(app_id, filepath.Join("test", "junk.pem"))
+	_, err := LoadMauth(appID, filepath.Join("test", "junk.pem"))
 	if err == nil {
 		t.Error("Expected Error loading an empty Private Key file")
 	}
 }
 
 func TestLoadMauthInvalidKey(t *testing.T) {
-	_, err := LoadMauth(app_id, filepath.Join("test", "invalid.pem"))
+	_, err := LoadMauth(appID, filepath.Join("test", "invalid.pem"))
 	if err == nil {
 		t.Error("Expected Error loading an invalid Private Key")
 	}
@@ -44,11 +44,11 @@ func TestLoadMauthInvalidKey(t *testing.T) {
 
 func TestLoadMauthFromString(t *testing.T) {
 	keyContent, _ := ioutil.ReadFile(filepath.Join("test", "private_key.pem"))
-	mauth, err := LoadMauthFromString(app_id, keyContent)
+	mauth, err := LoadMauthFromString(appID, keyContent)
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
 	}
-	if mauth.AppId != app_id {
+	if mauth.AppID != appID {
 		t.Error("App ID doesn't match")
 	}
 	if mauth.RsaPrivateKey.Validate() != nil {
@@ -58,7 +58,7 @@ func TestLoadMauthFromString(t *testing.T) {
 
 func TestLoadMauthFromStringNotKey(t *testing.T) {
 	keyContent, _ := ioutil.ReadFile(filepath.Join("test", "junk.pem"))
-	_, err := LoadMauthFromString(app_id, keyContent)
+	_, err := LoadMauthFromString(appID, keyContent)
 	if err == nil {
 		t.Error("Expected Error loading an empty Private Key file")
 	}
@@ -66,7 +66,7 @@ func TestLoadMauthFromStringNotKey(t *testing.T) {
 
 func TestLoadMauthFromStringInvalidKey(t *testing.T) {
 	keyContent, _ := ioutil.ReadFile(filepath.Join("test", "invalid.pem"))
-	_, err := LoadMauthFromString(app_id, keyContent)
+	_, err := LoadMauthFromString(appID, keyContent)
 	if err == nil {
 		t.Error("Expected Error loading an invalid Private Key")
 	}
@@ -84,7 +84,7 @@ func ExampleLoadMauth() {
 	if err != nil {
 		log.Fatal("Unable to create client: ", err)
 	}
-	println("Created MAuth App for APP_UUID ", client.AppId)
+	println("Created MAuth App for APP_UUID ", client.AppID)
 }
 
 // Example for creating client where the Private Key is provided as a String
@@ -100,11 +100,11 @@ func ExampleLoadMauthFromString() {
 	if err != nil {
 		log.Fatal("Unable to create client: ", err)
 	}
-	println("Created MAuth App for APP_UUID ", client.AppId)
+	println("Created MAuth App for APP_UUID ", client.AppID)
 }
 
 func TestMAuthApp_makeRequestUserAgent(t *testing.T) {
-	mauth, err := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauth, err := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
 	}
@@ -119,7 +119,7 @@ func TestMAuthApp_makeRequestUserAgent(t *testing.T) {
 }
 
 func TestMAuthApp_makeRequestEmpty(t *testing.T) {
-	mauth, err := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauth, err := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
 	}
@@ -133,12 +133,12 @@ func TestMAuthApp_makeRequestEmpty(t *testing.T) {
 }
 
 func TestMAuthApp_makeRequestJSON(t *testing.T) {
-	mauth, err := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauth, err := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
 	}
 	extraHeaders := make(map[string][]string)
-	request, err := mauth.makeRequest("POST", "/some/url", `{"app_id":12345}`, extraHeaders)
+	request, err := mauth.makeRequest("POST", "/some/url", `{"appID":12345}`, extraHeaders)
 	if "application/json" != request.Header.Get("Content-type") {
 		t.Error("Expected Content-type to be 'application/json' got '",
 			request.Header.Get("Content-Type"), "'")
@@ -146,12 +146,12 @@ func TestMAuthApp_makeRequestJSON(t *testing.T) {
 }
 
 func TestMAuthApp_makeRequestInvalidURL(t *testing.T) {
-	mauth, err := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauth, err := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	if err != nil {
 		t.Error("Error creating the MAuth Struct")
 	}
 	extraHeaders := make(map[string][]string)
-	_, err = mauth.makeRequest("POST", "\x7f\x8c\x98", `{"app_id":12345}`, extraHeaders)
+	_, err = mauth.makeRequest("POST", "\x7f\x8c\x98", `{"appID":12345}`, extraHeaders)
 	if err == nil {
 		t.Error("Expected Error with non-sensical URL")
 	}
