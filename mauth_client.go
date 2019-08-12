@@ -17,79 +17,94 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // MAuthClient struct holds all the context for a MAuth Client
 type MAuthClient struct {
 	mauthApp     *MAuthApp
-	baseUrl      *url.URL
+	baseURL      *url.URL
 	extraHeaders map[string][]string
 }
 
 // CreateClient creates a MAuth Client for the baseUrl
-func (mauthApp *MAuthApp) CreateClient(baseUrl string) (client *MAuthClient, err error) {
+func (mauthApp *MAuthApp) CreateClient(baseURL string) (client *MAuthClient, err error) {
 	// check for a bad baseURL
-	parsedURL, err := url.ParseRequestURI(baseUrl)
+	parsedURL, err := url.ParseRequestURI(baseURL)
 	if err != nil {
 		return nil, err
 	}
 	client = &MAuthClient{mauthApp: mauthApp,
-		baseUrl:      parsedURL,
+		baseURL:      parsedURL,
 		extraHeaders: make(map[string][]string)}
 	return
 }
 
-// add a Header
-func (client *MAuthClient) SetHeader(headerName, headerValue string) {
-	header, exists := client.extraHeaders[headerName]
+// SetHeader - adds a Header to the Request
+func (mauthClient *MAuthClient) SetHeader(headerName, headerValue string) {
+	header, exists := mauthClient.extraHeaders[headerName]
 	if !exists {
 		header = []string{}
 	}
 	header = append(header, headerValue)
-	client.extraHeaders[headerName] = header
+	mauthClient.extraHeaders[headerName] = header
+}
+
+// GetHeader - get a Header by Name
+func (mauthClient *MAuthClient) GetHeader(headerName string) ([]string, error) {
+	header, exists := mauthClient.extraHeaders[headerName]
+	if !exists {
+		return nil, errors.New("No such header " + headerName)
+	}
+	return header, nil
+}
+
+// GetHeaders - get Headers
+func (mauthClient *MAuthClient) GetHeaders() map[string][]string {
+	return mauthClient.extraHeaders
 }
 
 // fullURL returns the full URL, if we have a path it will prepend the base_url
-func (mauthClient *MAuthClient) fullURL(targetUrl string) (fullUrl string, err error) {
-	var parsedUrl *url.URL
-	if strings.HasPrefix(targetUrl, "http") {
+func (mauthClient *MAuthClient) fullURL(targetURL string) (fullURL string, err error) {
+	var parsedURL *url.URL
+	if strings.HasPrefix(targetURL, "http") {
 		// an entire URL
-		parsedUrl, err = url.Parse(targetUrl)
+		parsedURL, err = url.Parse(targetURL)
 		if err != nil {
 			return "", err
 		}
 	} else {
-		parsedUrl = mauthClient.baseUrl
+		parsedURL = mauthClient.baseURL
 		// a partial URL
-		parsedUrl.Path = targetUrl
+		parsedURL.Path = targetURL
 	}
-	fullUrl = parsedUrl.String()
+	fullURL = parsedURL.String()
 	return
 }
 
-// MAuthClient.Get executes a GET request against targetURL
+// Get executes a GET request against targetURL
 func (mauthClient *MAuthClient) Get(targetURL string) (response *http.Response, err error) {
-	fullUrl, err := mauthClient.fullURL(targetURL)
+	fullURL, err := mauthClient.fullURL(targetURL)
 	if err != nil {
 		return nil, err
 	}
-	req, err := mauthClient.mauthApp.makeRequest("GET", fullUrl, "", mauthClient.extraHeaders)
+	req, err := mauthClient.mauthApp.makeRequest("GET", fullURL, "", mauthClient.extraHeaders)
 	if err != nil {
 		return nil, err
 	}
-
 	client := http.Client{}
 	response, err = client.Do(req)
 	return
 }
 
-// MAuthClient.Delete executes a DELETE request against targetURL
+// Delete executes a DELETE request against targetURL
 func (mauthClient *MAuthClient) Delete(targetURL string) (response *http.Response, err error) {
-	fullUrl, err := mauthClient.fullURL(targetURL)
+	fullURL, err := mauthClient.fullURL(targetURL)
 	if err != nil {
 		return nil, err
 	}
-	req, err := mauthClient.mauthApp.makeRequest("DELETE", fullUrl, "", mauthClient.extraHeaders)
+	req, err := mauthClient.mauthApp.makeRequest("DELETE", fullURL, "", mauthClient.extraHeaders)
 	if err != nil {
 		return nil, err
 	}
@@ -99,13 +114,13 @@ func (mauthClient *MAuthClient) Delete(targetURL string) (response *http.Respons
 	return
 }
 
-// MAuthClient.Post executes a POST request against a targetURL
+// Post executes a POST request against a targetURL
 func (mauthClient *MAuthClient) Post(targetURL string, data string) (response *http.Response, err error) {
-	fullUrl, err := mauthClient.fullURL(targetURL)
+	fullURL, err := mauthClient.fullURL(targetURL)
 	if err != nil {
 		return nil, err
 	}
-	req, err := mauthClient.mauthApp.makeRequest("POST", fullUrl, data, mauthClient.extraHeaders)
+	req, err := mauthClient.mauthApp.makeRequest("POST", fullURL, data, mauthClient.extraHeaders)
 	if err != nil {
 		return nil, err
 	}
@@ -115,13 +130,13 @@ func (mauthClient *MAuthClient) Post(targetURL string, data string) (response *h
 	return
 }
 
-// MAuthClient.Put executes a PUT request against a targetURL
+// Put executes a PUT request against a targetURL
 func (mauthClient *MAuthClient) Put(targetURL string, data string) (response *http.Response, err error) {
-	fullUrl, err := mauthClient.fullURL(targetURL)
+	fullURL, err := mauthClient.fullURL(targetURL)
 	if err != nil {
 		return nil, err
 	}
-	req, err := mauthClient.mauthApp.makeRequest("PUT", fullUrl, data, mauthClient.extraHeaders)
+	req, err := mauthClient.mauthApp.makeRequest("PUT", fullURL, data, mauthClient.extraHeaders)
 	if err != nil {
 		return nil, err
 	}

@@ -13,7 +13,7 @@ import (
 )
 
 func TestFullURLWithRelative(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	expected := "https://innovate.mdsol.com/api/v2/users.json"
 	actual, _ := client.fullURL("/api/v2/users.json")
@@ -32,7 +32,7 @@ func TestFullURLWithRelative(t *testing.T) {
 }
 
 func TestFullURLWithRelativeAndParams(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	expected := "https://innovate.mdsol.com/api/v2/users.json"
 	actual, _ := client.fullURL("/api/v2/users.json")
@@ -51,7 +51,7 @@ func TestFullURLWithRelativeAndParams(t *testing.T) {
 }
 
 func TestFullURLWithActualURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	expected := "https://balance-innovate.mdsol.com/api/v2/users.json"
 	actual, _ := client.fullURL("https://balance-innovate.mdsol.com/api/v2/users.json")
@@ -62,18 +62,18 @@ func TestFullURLWithActualURL(t *testing.T) {
 }
 
 func TestCreateClient(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
-	if client.baseUrl.String() != "https://innovate.mdsol.com" {
+	if client.baseURL.String() != "https://innovate.mdsol.com" {
 		t.Error("Base URL has changed")
 	}
-	if client.mauthApp.AppId != app_id {
+	if client.mauthApp.AppID != appID {
 		t.Error("App ID has changed")
 	}
 }
 
 func TestCreateClientBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	_, err := mauthApp.CreateClient("some_nonsense")
 	if err == nil {
 		t.Error("Bad URL should fail")
@@ -81,7 +81,7 @@ func TestCreateClientBadURL(t *testing.T) {
 }
 
 func TestMauthClient_fullURLBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	_, err := client.fullURL("http://\x7finnovate.mdsol.com")
 	if err == nil {
@@ -89,7 +89,7 @@ func TestMauthClient_fullURLBadURL(t *testing.T) {
 	}
 }
 func TestMauthClient_fullURLPathBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	_, err := mauthApp.CreateClient("https://\x7finnovate.mdsol.com")
 	if err == nil {
 		t.Error("Expected error with Bad URL")
@@ -97,7 +97,7 @@ func TestMauthClient_fullURLPathBadURL(t *testing.T) {
 }
 
 func TestMauthClient_fullURLPath(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	fullURL, err := client.fullURL("/subject/city")
 	if err != nil {
@@ -131,7 +131,7 @@ func TestMAuthClient_Get(t *testing.T) {
 
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Make the Get call
 	_, err := client.Get("/api/v2/users.json")
@@ -148,7 +148,7 @@ func TestMAuthClient_Get(t *testing.T) {
 
 // Get with bad URL
 func TestMAuthClient_GetBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	// Make the Get call
 	_, err := client.Get("https://innovate.mdsol.com/api/v2/\x7fusers.json")
@@ -159,7 +159,7 @@ func TestMAuthClient_GetBadURL(t *testing.T) {
 
 // Post with bad URL
 func TestMAuthClient_PostBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	// Make the Post call
 	_, err := client.Post("https://innovate.mdsol.com/api/v2/\x7fusers.json", "")
@@ -170,7 +170,7 @@ func TestMAuthClient_PostBadURL(t *testing.T) {
 
 // Put with bad URL
 func TestMAuthClient_PutBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	// Make the Post call
 	_, err := client.Put("https://innovate.mdsol.com/api/v2/\x7fusers.json", "")
@@ -181,7 +181,7 @@ func TestMAuthClient_PutBadURL(t *testing.T) {
 
 // Put with bad URL
 func TestMAuthClient_DeleteBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	// Make the Post call
 	_, err := client.Delete("https://innovate.mdsol.com/api/v2/\x7fusers.json")
@@ -204,7 +204,7 @@ func TestMAuthClient_Delete(t *testing.T) {
 		_, _ = fmt.Fprintln(w, `{"fake twitter json string"}`)
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Make the Get call
 	_, err := client.Delete("/api/v2/users.json")
@@ -239,7 +239,7 @@ func TestMAuthClient_Post(t *testing.T) {
 		_, _ = fmt.Fprint(w, "{\"fake twitter json string\"}")
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Make the Get call
 	response, err := client.Post("/api/v2/users.json", `{"uuid":"1234-1234"}`)
@@ -283,7 +283,7 @@ func TestMAuthClient_Put(t *testing.T) {
 		_, _ = fmt.Fprint(w, "{\"fake twitter json string\"}")
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Make the Get call
 	response, err := client.Put("/api/v2/users.json", `{"uuid":"1234-1234"}`)
@@ -332,7 +332,7 @@ func TestMAuthClient_SetHeader(t *testing.T) {
 		_, _ = fmt.Fprint(w, "{\"fake twitter json string\"}")
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(appID, filepath.Join("test", "private_key.pem"))
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Set a Header
 	client.SetHeader("Mcc-Version", "v2019-03-22")
@@ -381,7 +381,7 @@ func ExampleMAuthApp_CreateClient() {
 	if err != nil {
 		log.Fatal("Unable to create MAuth Client: ", err)
 	}
-	println("Successfully created MAuth Client for APP: ", client.mauthApp.AppId)
+	println("Successfully created MAuth Client for APP: ", client.mauthApp.AppID)
 }
 
 // Example of creating a MAuth Client and making a Get Request
