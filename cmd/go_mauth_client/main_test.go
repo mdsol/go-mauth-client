@@ -11,7 +11,7 @@ func TestIsNull(t *testing.T) {
 	test := ""
 	expected := true
 	actual := IsNull(&test)
-	if actual != expected {
+	if actual != true {
 		t.Error("Failed with null String")
 	}
 	test = "Some Apples"
@@ -51,7 +51,10 @@ func TestLoadMAuthConfig(t *testing.T) {
 	if client == nil {
 		t.Error("Expected existing file to return not nil")
 	}
-	if client.AppId != "11111111-2222-4105-b42e-88888888888" {
+	if client.AppID == "" {
+		t.Error("Incorrect APP ID")
+	}
+	if client.AppID != "11111111-2222-4105-b42e-88888888888" {
 		t.Error("Incorrect APP ID")
 	}
 }

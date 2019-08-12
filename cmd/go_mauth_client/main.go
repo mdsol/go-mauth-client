@@ -57,12 +57,12 @@ func ProcessConfiguration(content []byte) (mauthApp *go_mauth_client.MAuthApp, e
 	privateKeyFile := context["private_key_file"]
 	privateKeyText := context["private_key_text"]
 	if IsNull(&appUuid) {
-		return nil, errors.New("Need an app_uuid specified")
+		return nil, errors.New("need an app_uuid specified")
 	}
 
 	// No key, textual or file-based, passed in
 	if IsNull(&privateKeyFile) && IsNull(&privateKeyText) {
-		return nil, errors.New("Need a key specified")
+		return nil, errors.New("need a key specified")
 	}
 	// Load from text
 	if IsNull(&privateKeyFile) {
@@ -105,6 +105,8 @@ func main() {
 	appUuid := flag.String("app-uuid", "", "Specify the App UUID")
 	// action is the HTTP Verb to use on the URL
 	action := flag.String("method", "GET", "Specify the method (GET, POST, PUT, DELETE)")
+	// contentType is the content-type header to set
+	contentType := flag.String("content-type", "application/json", "Specify the Content-Type (defaults to application/json)")
 	// data is the data to be POST or PUT
 	data := flag.String("data", "", "Specify the data")
 	// headers is a flag, which tells the app to print out the response headers
@@ -138,44 +140,41 @@ func main() {
 		mauthApp, err = LoadMAuthConfig(*configFile)
 		if err != nil {
 			log.Fatal("Error loading configuration: ", err)
-			os.Exit(1)
 		}
 	} else {
 		var err error
 		mauthApp, err = go_mauth_client.LoadMauth(*appUuid, *keyFile)
 		if err != nil {
 			log.Fatal("Error loading configuration: ", err)
-			os.Exit(1)
 		}
 	}
 	if *verbose {
-		log.Println("Created MAuth App with App UUID: ", mauthApp.AppId)
+		log.Println("Created MAuth App with App UUID: ", mauthApp.AppID)
 	}
 	actionMatches := CheckAction(action)
 	if !actionMatches {
-		log.Fatal("Action ", action, "is not known")
 		flag.Usage()
-		os.Exit(1)
+		log.Fatal("Action ", action, "is not known")
 	}
 	var args []string
 	args = flag.Args()
 	if len(args) == 0 {
-		log.Fatal("No URL, nothing to do")
 		flag.Usage()
-		os.Exit(1)
+		log.Fatal("No URL, nothing to do")
 	}
 	targetUrl, err := url.Parse(args[0])
 	if err != nil {
 		log.Fatal("Unable to parse url: ", err)
-		os.Exit(1)
 	}
 	client, err := mauthApp.CreateClient(targetUrl.Scheme + "://" + targetUrl.Host)
 	if err != nil {
 		log.Fatalf("Error creating MAuthClient: %s", err)
-		os.Exit(1)
 	}
 	if *mccVersion != "" {
 		client.SetHeader("Mcc-version", *mccVersion)
+	}
+	if *contentType != "" {
+		client.SetHeader("Accept", *contentType)
 	}
 	var response *http.Response
 	switch *action {
@@ -194,7 +193,14 @@ func main() {
 	if err != nil {
 		log.Fatal("Error raised in request ", err, " please check")
 	}
-	defer response.Body.Close()
+	// Defer closing the response
+	defer func() {
+		err = response.Body.Close()
+		if err != nil {
+			log.Fatal("Error raised in response ", err, " please check")
+		}
+	}()
+
 	if *verbose {
 		log.Println("Status Code: ", response.StatusCode)
 	}
