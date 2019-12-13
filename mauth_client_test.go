@@ -13,7 +13,7 @@ import (
 )
 
 func TestFullURLWithRelative(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	expected := "https://innovate.mdsol.com/api/v2/users.json"
 	actual, _ := client.fullURL("/api/v2/users.json")
@@ -32,7 +32,7 @@ func TestFullURLWithRelative(t *testing.T) {
 }
 
 func TestFullURLWithRelativeAndParams(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	expected := "https://innovate.mdsol.com/api/v2/users.json"
 	actual, _ := client.fullURL("/api/v2/users.json")
@@ -51,18 +51,17 @@ func TestFullURLWithRelativeAndParams(t *testing.T) {
 }
 
 func TestFullURLWithActualURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	expected := "https://balance-innovate.mdsol.com/api/v2/users.json"
 	actual, _ := client.fullURL("https://balance-innovate.mdsol.com/api/v2/users.json")
 	if actual != expected {
 		t.Error("Expected URL not seen")
-
 	}
 }
 
 func TestCreateClient(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	if client.baseUrl.String() != "https://innovate.mdsol.com" {
 		t.Error("Base URL has changed")
@@ -73,7 +72,7 @@ func TestCreateClient(t *testing.T) {
 }
 
 func TestCreateClientBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	_, err := mauthApp.CreateClient("some_nonsense")
 	if err == nil {
 		t.Error("Bad URL should fail")
@@ -81,7 +80,7 @@ func TestCreateClientBadURL(t *testing.T) {
 }
 
 func TestMauthClient_fullURLBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	_, err := client.fullURL("http://\x7finnovate.mdsol.com")
 	if err == nil {
@@ -89,7 +88,7 @@ func TestMauthClient_fullURLBadURL(t *testing.T) {
 	}
 }
 func TestMauthClient_fullURLPathBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	_, err := mauthApp.CreateClient("https://\x7finnovate.mdsol.com")
 	if err == nil {
 		t.Error("Expected error with Bad URL")
@@ -97,7 +96,7 @@ func TestMauthClient_fullURLPathBadURL(t *testing.T) {
 }
 
 func TestMauthClient_fullURLPath(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	fullURL, err := client.fullURL("/subject/city")
 	if err != nil {
@@ -117,21 +116,32 @@ func hasMWSHeader(r *http.Request) bool {
 	return false
 }
 
+func hasMCCHeader(r *http.Request) bool {
+	for header := range r.Header {
+		if header == "Mcc-Authentication" {
+			return true
+		}
+	}
+	return false
+}
+
 // Test the Get call
 func TestMAuthClient_Get(t *testing.T) {
 	var verb string
 	hasMwsHeader := false
+	hasMccHeader := false
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = r.URL.String()
 		verb = r.Method
 		hasMwsHeader = hasMWSHeader(r)
+		hasMccHeader = hasMCCHeader(r)
 		w.Header().Set("Content-Type", "application/json")
 		// Don't care about errors here
 		_, _ = fmt.Fprintln(w, `{"fake twitter json string"}`)
 
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Make the Get call
 	_, err := client.Get("/api/v2/users.json")
@@ -142,13 +152,50 @@ func TestMAuthClient_Get(t *testing.T) {
 		t.Error("Expected GET, got ", verb)
 	}
 	if !hasMwsHeader {
-		t.Error("Expected header not present")
+		t.Error("Expected MWS header not present")
+	}
+	if !hasMccHeader {
+		t.Error("Expected MCC header not present")
+	}
+}
+
+// Test the Get call with V1 Disabled
+func TestMAuthClient_Get_DisabledV1(t *testing.T) {
+	var verb string
+	hasMwsHeader := false
+	hasMccHeader := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = r.URL.String()
+		verb = r.Method
+		hasMwsHeader = hasMWSHeader(r)
+		hasMccHeader = hasMCCHeader(r)
+		w.Header().Set("Content-Type", "application/json")
+		// Don't care about errors here
+		_, _ = fmt.Fprintln(w, `{"fake twitter json string"}`)
+
+	}))
+	defer server.Close()
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), true})
+	client, _ := mauthApp.CreateClient(server.URL)
+	// Make the Get call
+	_, err := client.Get("/api/v2/users.json")
+	if err != nil {
+		t.Error("Get Failed: ", err)
+	}
+	if verb != "GET" {
+		t.Error("Expected GET, got ", verb)
+	}
+	if hasMwsHeader {
+		t.Error("Unexpected MWS header present")
+	}
+	if !hasMccHeader {
+		t.Error("Expected MCC header not present")
 	}
 }
 
 // Get with bad URL
 func TestMAuthClient_GetBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	// Make the Get call
 	_, err := client.Get("https://innovate.mdsol.com/api/v2/\x7fusers.json")
@@ -159,7 +206,7 @@ func TestMAuthClient_GetBadURL(t *testing.T) {
 
 // Post with bad URL
 func TestMAuthClient_PostBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	// Make the Post call
 	_, err := client.Post("https://innovate.mdsol.com/api/v2/\x7fusers.json", "")
@@ -170,7 +217,7 @@ func TestMAuthClient_PostBadURL(t *testing.T) {
 
 // Put with bad URL
 func TestMAuthClient_PutBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	// Make the Post call
 	_, err := client.Put("https://innovate.mdsol.com/api/v2/\x7fusers.json", "")
@@ -181,7 +228,7 @@ func TestMAuthClient_PutBadURL(t *testing.T) {
 
 // Put with bad URL
 func TestMAuthClient_DeleteBadURL(t *testing.T) {
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient("https://innovate.mdsol.com")
 	// Make the Post call
 	_, err := client.Delete("https://innovate.mdsol.com/api/v2/\x7fusers.json")
@@ -194,17 +241,19 @@ func TestMAuthClient_DeleteBadURL(t *testing.T) {
 func TestMAuthClient_Delete(t *testing.T) {
 	var verb string
 	hasMwsHeader := false
+	hasMccHeader := false
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = r.URL.String()
 		verb = r.Method
 
 		hasMwsHeader = hasMWSHeader(r)
+		hasMccHeader = hasMCCHeader(r)
 		w.Header().Set("Content-Type", "application/json")
 		// don't care about errors here
 		_, _ = fmt.Fprintln(w, `{"fake twitter json string"}`)
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Make the Get call
 	_, err := client.Delete("/api/v2/users.json")
@@ -215,7 +264,10 @@ func TestMAuthClient_Delete(t *testing.T) {
 		t.Error("Expected DELETE, got ", verb)
 	}
 	if !hasMwsHeader {
-		t.Error("Expected header not present")
+		t.Error("Expected MWS header not present")
+	}
+	if !hasMccHeader {
+		t.Error("Expected MCC header not present")
 	}
 }
 
@@ -223,12 +275,14 @@ func TestMAuthClient_Delete(t *testing.T) {
 func TestMAuthClient_Post(t *testing.T) {
 	var verb string
 	hasMwsHeader := false
+	hasMccHeader := false
 	var contentType string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = r.URL.String()
 		verb = r.Method
 
 		hasMwsHeader = hasMWSHeader(r)
+		hasMccHeader = hasMCCHeader(r)
 		for header, value := range r.Header {
 			if header == "Content-Type" {
 				contentType = strings.Join(value, "")
@@ -239,7 +293,7 @@ func TestMAuthClient_Post(t *testing.T) {
 		_, _ = fmt.Fprint(w, "{\"fake twitter json string\"}")
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Make the Get call
 	response, err := client.Post("/api/v2/users.json", `{"uuid":"1234-1234"}`)
@@ -250,7 +304,10 @@ func TestMAuthClient_Post(t *testing.T) {
 		t.Error("Expected POST, got ", verb)
 	}
 	if !hasMwsHeader {
-		t.Error("Expected header not present")
+		t.Error("Expected MWS header not present")
+	}
+	if !hasMccHeader {
+		t.Error("Expected MCC header not present")
 	}
 	if contentType != "application/json" {
 		t.Error("Expected Content-type not set")
@@ -268,12 +325,14 @@ func TestMAuthClient_Post(t *testing.T) {
 func TestMAuthClient_Put(t *testing.T) {
 	var verb string
 	hasMwsHeader := false
+	hasMccHeader := false
 	var contentType string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = r.URL.String()
 		verb = r.Method
 
 		hasMwsHeader = hasMWSHeader(r)
+		hasMccHeader = hasMCCHeader(r)
 		for header, value := range r.Header {
 			if header == "Content-Type" {
 				contentType = strings.Join(value, "")
@@ -283,7 +342,7 @@ func TestMAuthClient_Put(t *testing.T) {
 		_, _ = fmt.Fprint(w, "{\"fake twitter json string\"}")
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Make the Get call
 	response, err := client.Put("/api/v2/users.json", `{"uuid":"1234-1234"}`)
@@ -294,7 +353,10 @@ func TestMAuthClient_Put(t *testing.T) {
 		t.Error("Expected PUT, got ", verb)
 	}
 	if !hasMwsHeader {
-		t.Error("Expected header not present")
+		t.Error("Expected MWS header not present")
+	}
+	if !hasMccHeader {
+		t.Error("Expected MCC header not present")
 	}
 	if contentType != "application/json" {
 		t.Error("Expected Content-type not set")
@@ -311,6 +373,7 @@ func TestMAuthClient_Put(t *testing.T) {
 func TestMAuthClient_SetHeader(t *testing.T) {
 	var verb string
 	hasMwsHeader := false
+	hasMccHeader := false
 	hasMccVersionHeader := false
 	var contentType string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -318,6 +381,7 @@ func TestMAuthClient_SetHeader(t *testing.T) {
 		verb = r.Method
 
 		hasMwsHeader = hasMWSHeader(r)
+		hasMccHeader = hasMCCHeader(r)
 		for header, value := range r.Header {
 			if header == "Content-Type" {
 				contentType = strings.Join(value, "")
@@ -332,7 +396,7 @@ func TestMAuthClient_SetHeader(t *testing.T) {
 		_, _ = fmt.Fprint(w, "{\"fake twitter json string\"}")
 	}))
 	defer server.Close()
-	mauthApp, _ := LoadMauth(app_id, filepath.Join("test", "private_key.pem"))
+	mauthApp, _ := LoadMauth(MAuthOptions{app_id, filepath.Join("test", "private_key.pem"), false})
 	client, _ := mauthApp.CreateClient(server.URL)
 	// Set a Header
 	client.SetHeader("Mcc-Version", "v2019-03-22")
@@ -346,6 +410,9 @@ func TestMAuthClient_SetHeader(t *testing.T) {
 	}
 	if !hasMwsHeader {
 		t.Error("Expected MWS header not present")
+	}
+	if !hasMccHeader {
+		t.Error("Expected MCC header not present")
 	}
 	if !hasMccVersionHeader {
 		t.Error("Expected Mcc-version header not present")
@@ -370,7 +437,7 @@ func ExampleMAuthApp_CreateClient() {
 	var keyPath = filepath.Join("test", "private_key.pem")
 	// create a MAuth mAuthApp
 	var mAuthApp *MAuthApp
-	mAuthApp, err := LoadMauth(appUUID, keyPath)
+	mAuthApp, err := LoadMauth(MAuthOptions{appUUID, keyPath, false})
 	if err != nil {
 		log.Fatal("Unable to create mAuthApp: ", err)
 	}
@@ -395,7 +462,7 @@ func ExampleMAuthClient_Get() {
 	var keyPath = filepath.Join("test", "private_key.pem")
 	// create a MAuth mAuthApp
 	var mAuthApp *MAuthApp
-	mAuthApp, err := LoadMauth(appUUID, keyPath)
+	mAuthApp, err := LoadMauth(MAuthOptions{appUUID, keyPath, false})
 	if err != nil {
 		log.Fatal("Unable to create mAuthApp: ", err)
 	}
@@ -424,7 +491,7 @@ func ExampleMAuthClient_Post() {
 	var keyPath = filepath.Join("test", "private_key.pem")
 	// create a MAuth mAuthApp
 	var mAuthApp *MAuthApp
-	mAuthApp, err := LoadMauth(appUUID, keyPath)
+	mAuthApp, err := LoadMauth(MAuthOptions{appUUID, keyPath, false})
 	if err != nil {
 		log.Fatal("Unable to create mAuthApp: ", err)
 	}

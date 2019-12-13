@@ -14,9 +14,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 
 	"github.com/go-xmlfmt/xmlfmt"
-	"github.com/mdsol/go-mauth-client"
+	go_mauth_client "github.com/mdsol/go-mauth-client"
 )
 
 // Context for the MAuth Client
@@ -56,6 +57,7 @@ func ProcessConfiguration(content []byte) (mauthApp *go_mauth_client.MAuthApp, e
 	appUuid := context["app_uuid"]
 	privateKeyFile := context["private_key_file"]
 	privateKeyText := context["private_key_text"]
+	disableV1, err := strconv.ParseBool(context["disable_v1"])
 	if IsNull(&appUuid) {
 		return nil, errors.New("Need an app_uuid specified")
 	}
@@ -67,12 +69,10 @@ func ProcessConfiguration(content []byte) (mauthApp *go_mauth_client.MAuthApp, e
 	// Load from text
 	if IsNull(&privateKeyFile) {
 		// read from the embedded value
-		mauthApp, err = go_mauth_client.LoadMauthFromString(appUuid,
-			[]byte(privateKeyText))
+		mauthApp, err = go_mauth_client.LoadMauth(go_mauth_client.MAuthOptions{appUuid, privateKeyText, disableV1})
 	} else {
 		// load the key from a file
-		mauthApp, err = go_mauth_client.LoadMauth(appUuid,
-			privateKeyFile)
+		mauthApp, err = go_mauth_client.LoadMauth(go_mauth_client.MAuthOptions{appUuid, privateKeyFile, disableV1})
 	}
 	return
 }
@@ -103,6 +103,8 @@ func main() {
 	keyFile := flag.String("private-key", "", "Specify the private key file")
 	// app_uuid is the assigned MAuth App ID
 	appUuid := flag.String("app-uuid", "", "Specify the App UUID")
+	// disableV1 specifies if V1 signing should occurr
+	disableV1 := flag.Bool("disableV1", false, "Specify if V1 signing should be disabled")
 	// action is the HTTP Verb to use on the URL
 	action := flag.String("method", "GET", "Specify the method (GET, POST, PUT, DELETE)")
 	// data is the data to be POST or PUT
@@ -142,7 +144,7 @@ func main() {
 		}
 	} else {
 		var err error
-		mauthApp, err = go_mauth_client.LoadMauth(*appUuid, *keyFile)
+		mauthApp, err = go_mauth_client.LoadMauth(go_mauth_client.MAuthOptions{*appUuid, *keyFile, *disableV1})
 		if err != nil {
 			log.Fatal("Error loading configuration: ", err)
 			os.Exit(1)

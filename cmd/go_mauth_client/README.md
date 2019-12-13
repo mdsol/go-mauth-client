@@ -14,6 +14,8 @@ $ go_mauth_client -help
 Usage of go_mauth_client:
   -app-uuid string
         Specify the App UUID
+  -disableV1 bool
+        Specify if MAuth V1 should be disabled
   -config string
         Specify the configuration file
   -data string
@@ -36,7 +38,8 @@ Usage of go_mauth_client:
 The configuration file is a simple JSON file with the following structure:
 ```json
 {"app_uuid": "1990d36d-4444-4105-b42e-223355334499",
-"private_key_file": "innovate_private_key.pem"}
+"private_key_file": "innovate_private_key.pem",
+"disable_v1": "false"}
 ```
 As an alternative the content of the private key can be included using a `private_key_text` attribute.
 

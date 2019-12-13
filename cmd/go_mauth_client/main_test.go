@@ -75,7 +75,7 @@ func TestProcessConfiguration(t *testing.T) {
 	if err == nil {
 		t.Error("Expected failure with no private key details")
 	}
-	testJson = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_file\":\"test/private_key.pem\"}"
+	testJson = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_file\":\"test/private_key.pem\",\"disable_v1\":\"false\"}"
 	_, err = ProcessConfiguration([]byte(testJson))
 	if err != nil {
 		t.Error("Expected success with app_uuid and private_key_file")
@@ -84,7 +84,8 @@ func TestProcessConfiguration(t *testing.T) {
 	key_text := string(content)
 	// escape the newlines
 	key_content := strings.Replace(key_text, "\n", "\\n", -1)
-	testJson = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_text\":\"" + key_content + "\"}"
+	key_content = strings.Replace(key_content, "\r", "\\r", -1)
+	testJson = "{\"app_uuid\":\"11111111-2222-4105-b42e-88888888888\",\"private_key_text\":\"" + key_content + "\",\"disable_v1\":\"false\"}"
 	_, err = ProcessConfiguration([]byte(testJson))
 	if err != nil {
 		t.Error("Expected success with app_uuid and private_key_text")

@@ -17,24 +17,22 @@ import (
 type MAuthApp struct {
 	AppId         string
 	RsaPrivateKey *rsa.PrivateKey
+	DisableV1     bool
+}
+
+type MAuthOptions struct {
+	AppId      string
+	PrivateKey string
+	DisableV1  bool
 }
 
 // LoadMauth loads the configuration  when the private key content is in a file
-func LoadMauth(appId string, keyFileName string) (*MAuthApp, error) {
+func LoadMauth(options MAuthOptions) (*MAuthApp, error) {
 	// Create the MAuthApp struct
-	keyFileContent, err := ioutil.ReadFile(keyFileName)
+	keyFileContent, err := ioutil.ReadFile(options.PrivateKey)
 	if err != nil {
-		return nil, err
+		keyFileContent = []byte(options.PrivateKey)
 	}
-
-	// Reuse the core code
-	app, err := LoadMauthFromString(appId, keyFileContent)
-	return app, err
-}
-
-// LoadMauth loads the configuration  when the private key content is passed (such as from an environment string)
-func LoadMauthFromString(appId string, keyFileContent []byte) (*MAuthApp, error) {
-	// Create the MAuthApp struct, when passed a byte array
 
 	block, _ := pem.Decode(keyFileContent)
 	if block == nil {
@@ -46,14 +44,22 @@ func LoadMauthFromString(appId string, keyFileContent []byte) (*MAuthApp, error)
 		return nil, err
 	}
 
-	app := MAuthApp{AppId: appId,
-		RsaPrivateKey: privateKey}
+	app := MAuthApp{AppId: options.AppId,
+		RsaPrivateKey: privateKey,
+		DisableV1:     options.DisableV1}
 	return &app, nil
 }
 
 // makeRequest formulates the message, including the MAuth Headers and returns a http.Request, ready to send
 func (mauthApp *MAuthApp) makeRequest(method string, rawurl string, body string,
 	extraHeaders map[string][]string) (req *http.Request, err error) {
+
+	// create a new request object
+	req, err = http.NewRequest(method, rawurl, bytes.NewBuffer([]byte(body)))
+	if err != nil {
+		return nil, err
+	}
+
 	// Use the url.URL to assist with path management
 	url2, err := url.Parse(rawurl)
 	if err != nil {
@@ -61,23 +67,37 @@ func (mauthApp *MAuthApp) makeRequest(method string, rawurl string, body string,
 	}
 	// this needs to persist
 	secondsSinceEpoch := time.Now().Unix()
-	// build the MWS string
-	stringToSign := MakeSignatureString(mauthApp, method, url2.Path, body, secondsSinceEpoch)
-	// Sign the string
-	signedString, err := SignString(mauthApp, stringToSign)
+
+	if !mauthApp.DisableV1 {
+		// build the MWS string
+		stringToSign := MakeSignatureString(mauthApp, method, url2.Path, body, secondsSinceEpoch)
+
+		// Sign the string
+		signedString, err := SignString(mauthApp, stringToSign)
+		if err != nil {
+			return nil, err
+		}
+
+		// take everything and build the structure of the MAuth Headers
+		madeHeaders := MakeAuthenticationHeaders(mauthApp, signedString, secondsSinceEpoch)
+		for header, value := range madeHeaders {
+			req.Header.Set(header, value)
+		}
+	}
+
+	// build the MCC string
+	stringToSignV2 := MakeSignatureStringV2(mauthApp, method, url2.Path, body, secondsSinceEpoch)
+
+	signedStringV2, err := SignStringV2(mauthApp, stringToSignV2)
 	if err != nil {
 		return nil, err
 	}
-	// create a new request object
-	req, err = http.NewRequest(method, rawurl, bytes.NewBuffer([]byte(body)))
-	if err != nil {
-		return nil, err
-	}
-	// take everything and build the structure of the MAuth Headers
-	madeHeaders := MakeAuthenticationHeaders(mauthApp, signedString, secondsSinceEpoch)
-	for header, value := range madeHeaders {
+
+	madeHeadersV2 := MakeAuthenticationHeadersV2(mauthApp, signedStringV2, secondsSinceEpoch)
+	for header, value := range madeHeadersV2 {
 		req.Header.Set(header, value)
 	}
+
 	// Detect JSON, send appropriate Content-Type if detected
 	if isJSON(body) == true {
 		req.Header.Set("Content-Type", "application/json")

@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mdsol/go-mauth-client"
+	go_mauth_client "github.com/mdsol/go-mauth-client"
 )
 
 // Helper function to load the requisite attributes from the environment
@@ -16,8 +16,9 @@ func LoadApp() (mauthApp *go_mauth_client.MAuthApp, err error) {
 	privateKeyString := os.Getenv("MAUTH_PRIVATE_KEY")
 
 	// load the configuration from the environment
-	mauthApp, err = go_mauth_client.LoadMauthFromString(appUUID,
-		[]byte(privateKeyString))
+	mauthApp, err = go_mauth_client.LoadMauth(go_mauth_client.MAuthOptions{appUUID,
+		privateKeyString,
+		false})
 	if err != nil {
 		log.Fatal("Unable: to load client configuration; "+
 			"did you define MAUTH_APP_UUID and "+
