@@ -86,7 +86,7 @@ func (mauthApp *MAuthApp) makeRequest(method string, rawurl string, body string,
 	}
 
 	// build the MCC string
-	stringToSignV2 := MakeSignatureStringV2(mauthApp, method, url2.Path, body, secondsSinceEpoch)
+	stringToSignV2 := MakeSignatureStringV2(mauthApp, method, url2.RequestURI(), body, secondsSinceEpoch)
 
 	signedStringV2, err := SignStringV2(mauthApp, stringToSignV2)
 	if err != nil {
